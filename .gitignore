@@ -1,5 +1,7 @@
 .vscode
 quickstarts
+notes
+.DS_Store
 
 # Logs
 logs
