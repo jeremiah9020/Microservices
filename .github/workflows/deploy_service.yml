@@ -2,8 +2,8 @@ name: Azure Container Apps Deploy
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - service/**
 
 jobs:
   build:
