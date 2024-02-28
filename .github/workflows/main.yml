@@ -23,4 +23,4 @@ jobs:
           appSourcePath: ${{ github.workspace }}/service/src/
           acrName: recipescr
           containerAppName: service
-          resourceGroup: recipes-rg
+          resourceGroup: recipesrg
