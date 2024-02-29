@@ -25,7 +25,7 @@ async function assertDatabaseConnectionOk() {
       sequelize.models.book.create({
         title: "Anne of Green Gables",
         author: "Lucy Montgomery",
-        release_date: "1908",
+        release_date: "1909",
         subject: "0"
       });
     })  
