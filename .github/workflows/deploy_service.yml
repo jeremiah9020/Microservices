@@ -21,7 +21,7 @@ jobs:
         uses: azure/container-apps-deploy-action@v1
         with:
           appSourcePath: ${{ github.workspace }}/service/src
-          acrName: recipes-cr
+          acrName: recipescr
           containerAppName: service
           resourceGroup: recipes-rg
           ingress: internal
