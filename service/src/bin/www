@@ -11,9 +11,6 @@ const http = require('http');
 const assertDatabaseConnectionOk = require('../utils/databaseConnection');
 const init = require('../database/init');
 
-console.log("Environment Variables")
-console.log(process.env)
-
 /**
  * Get port from environment and store in Express.
  */
@@ -32,7 +29,15 @@ const server = http.createServer(app);
  * Checks if the database is connected properly
  */
 
-sequelize.then(db => assertDatabaseConnectionOk(db).then(() => init(db)))
+sequelize.then((db) => {
+  console.log(db)
+  assertDatabaseConnectionOk(db).then(() => {
+    init(db)
+  });
+});
+  
+  
+  
 
 /**
  * Listen on provided port, on all network interfaces.

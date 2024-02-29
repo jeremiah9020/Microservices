@@ -6,6 +6,8 @@ const { Sequelize } = require('sequelize');
  * @type {Promise<Sequelize>}
  */
 const sequelize = new Promise(async (res) => {
+    console.log('Getting database')
+    
     const db = await ((process.env.ONLINE) ? getProductionDatabase() : getLocalDatabase());
 
     const modelDefiners = [
