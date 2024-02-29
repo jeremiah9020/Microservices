@@ -25,3 +25,4 @@ jobs:
           containerAppName: service
           resourceGroup: recipes-rg
           ingress: external
+          targetPort: 3000
