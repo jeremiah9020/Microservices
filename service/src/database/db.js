@@ -7,7 +7,7 @@ const { Sequelize } = require('sequelize');
  */
 const sequelize = new Promise(async (res) => {
     console.log('Getting database')
-    
+
     const db = await ((process.env.ONLINE) ? getProductionDatabase() : getLocalDatabase());
 
     const modelDefiners = [
@@ -26,17 +26,17 @@ async function getProductionDatabase() {
     console.log('Getting production database');
 
     const secretsClient = require('../utils/secretsClient');
-    db_username = await secretsClient.getSecret('DB-USERNAME')
-    db_password = await secretsClient.getSecret('DB-PASSWORD')
-    db_host = await secretsClient.getSecret('DB-HOST')
+    const db_username = await secretsClient.getSecret('DB-USERNAME')
+    const db_password = await secretsClient.getSecret('DB-PASSWORD')
+    const db_host = await secretsClient.getSecret('DB-HOST')
 
     return new Sequelize(
         process.env.DB, 
-        db_username, 
-        db_password, 
+        db_username.value, 
+        db_password.value, 
         {
             logging:false,
-            host:db_host,
+            host:db_host.value,
             dialect: 'mssql',
             dialectOptions: {
                 encrypt: true

@@ -29,15 +29,7 @@ const server = http.createServer(app);
  * Checks if the database is connected properly
  */
 
-sequelize.then((db) => {
-  console.log(db)
-  assertDatabaseConnectionOk(db).then(() => {
-    init(db)
-  });
-});
-  
-  
-  
+sequelize.then(db => assertDatabaseConnectionOk(db).then(() => init(db)))
 
 /**
  * Listen on provided port, on all network interfaces.
