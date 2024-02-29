@@ -24,4 +24,4 @@ jobs:
           acrName: recipescr
           containerAppName: service
           resourceGroup: recipes-rg
-          ingress: internal
+          ingress: external
