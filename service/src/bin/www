@@ -4,22 +4,32 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('src:server');
-var http = require('http');
+const app = require('../application/app');
+const sequelize = require('../database/db');
+const debug = require('debug')('src:server');
+const http = require('http');
+const assertDatabaseConnectionOk = require('../utils/databaseConnection');
+const init = require('../database/init');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+const server = http.createServer(app);
+
+
+/**
+ * Checks if the database is connected properly
+ */
+
+sequelize.then(db => assertDatabaseConnectionOk(db).then(() => init(db)))
 
 /**
  * Listen on provided port, on all network interfaces.

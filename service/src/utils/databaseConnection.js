@@ -1,0 +1,11 @@
+module.exports = async function isDatabaseConnected(db) {
+	console.log('Checking database connection');
+	try {
+		await db.authenticate();
+		console.log('Database connection OK!');
+	} catch (error) {
+		console.error('Unable to connect to the database:');
+		console.error(error.message);
+		process.exit(1);
+	}
+}

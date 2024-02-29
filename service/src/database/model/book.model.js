@@ -1,5 +1,9 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, Sequelize } = require('sequelize');
 
+/**
+ * Defines the book model, accessible under sequelize.models.book
+ * @param {Sequelize} sequelize 
+ */
 module.exports = (sequelize) => {
   sequelize.define('book', {
     title: {
