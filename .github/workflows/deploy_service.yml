@@ -26,4 +26,4 @@ jobs:
           resourceGroup: recipes-rg
           ingress: external
           targetPort: 3000
-          environmentVariables: ONLINE=true KEYVAULT=https://recipes-keyvault.vault.azure.net/ DB=service-db
+          environmentVariables: "KEYVAULT=https://recipes-keyvault.vault.azure.net/ DB=service-db ONLINE=true"
