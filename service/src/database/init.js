@@ -15,7 +15,7 @@ module.exports = async (db) => {
             await db.models.book.create({
                 title: 'Anne of Green Gables',
                 author: 'Lucy Montgomery',
-                release_date: '1910',
+                release_date: '1909',
                 subject: '0'
             });
             console.log('Book successfully created');
