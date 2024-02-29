@@ -3,11 +3,41 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var app = express();
+
+const sequelize = require('./db');
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
-var app = express();
+
+async function assertDatabaseConnectionOk() {
+	console.log(`Checking database connection...`);
+	try {
+		await sequelize.authenticate();
+		console.log('Database connection OK!');
+
+    console.log('Syncing book model')
+
+
+    sequelize.models.book.sync({ force: true }).then(async () => {
+      sequelize.models.book.create({
+        title: "Anne of Green Gables",
+        author: "Lucy Montgomery",
+        release_date: "1908",
+        subject: "0"
+      });
+    })  
+	} catch (error) {
+		console.error('Unable to connect to the database:');
+		console.error(error.message);
+		process.exit(1);
+	}
+}
+
+assertDatabaseConnectionOk();
+
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -31,7 +61,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.send('error');
 });
 
 module.exports = app;
