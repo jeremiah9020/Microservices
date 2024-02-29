@@ -1,6 +1,8 @@
 const { DefaultAzureCredential } = require("@azure/identity");
 const { SecretClient } = require("@azure/keyvault-secrets");
 
+console.log(proccess.env)
+
 const credential = new DefaultAzureCredential();
 console.log(credential);
 
