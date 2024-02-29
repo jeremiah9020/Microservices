@@ -11,6 +11,8 @@ const http = require('http');
 const assertDatabaseConnectionOk = require('../utils/databaseConnection');
 const init = require('../database/init');
 
+console.log(process.env)
+
 /**
  * Get port from environment and store in Express.
  */
