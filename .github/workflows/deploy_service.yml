@@ -26,4 +26,4 @@ jobs:
           resourceGroup: recipes-rg
           ingress: external
           targetPort: 3000
-          environmentVariables: DB=service-db ONLINE=true AZURE_KEYVAULT_RESOURCEENDPOINT=https://recipes-keyvault.vault.azure.net/
+          environmentVariables: ONLINE=true AZURE_KEYVAULT_RESOURCEENDPOINT=https://recipes-keyvault.vault.azure.net/ DB=service-db
