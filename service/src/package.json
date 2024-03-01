@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "Used as a test file for testing microservices",
   "scripts": {
+    "install": "rm -r -f ./node_modules/shared && cp -R ../../shared/ ./node_modules/shared",
     "start": "node ./bin/www"
   },
   "dependencies": {
     "@azure/identity": "^4.0.1",
     "@azure/keyvault-secrets": "^4.8.0",
-    "axios": "^1.6.7",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
@@ -16,6 +16,7 @@
     "morgan": "~1.9.1",
     "mssql": "^10.0.2",
     "sequelize": "^6.37.1",
+    "shared": "file:../../shared",
     "sqlite3": "^5.1.7"
   },
   "author": "Jeremiah Lynn",

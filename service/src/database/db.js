@@ -1,6 +1,5 @@
 const { Sequelize } = require('sequelize');
 
-
 /**
  * Sets up the database and table definitions
  * @type {Promise<Sequelize>}
