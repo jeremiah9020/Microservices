@@ -8,7 +8,7 @@ RUN npm install --production --silent && mv node_modules ../
 RUN rm ../node_modules/shared
 RUN mkdir ../node_modules/shared
 COPY shared ../node_modules/shared
-COPY shared/node_modules/ ../node_modules
+RUN cd ../node_modules/shared && npm install --production --silent
 
 COPY service/src .
 
