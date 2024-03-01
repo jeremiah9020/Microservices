@@ -1,0 +1,30 @@
+name: Deploy SERVICE on push
+
+on:
+  push:
+    paths:
+      - SERVICE/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }}/
+          dockerfilePath: SERVICE/src/Dockerfile
+          acrName: recipescr
+          containerAppName: SERVICE
+          resourceGroup: recipes-rg
+          ingress: external
+          targetPort: PORT
+          environmentVariables: "KEYVAULT=https://recipes-keyvault.vault.azure.net/ DB=service-db ONLINE=true"
