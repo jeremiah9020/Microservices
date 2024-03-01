@@ -2,8 +2,6 @@ var express = require('express');
 var router = express.Router();
 
 const axios = require('axios');
-
-console.log(axios.getAdapter('something'));
 // const db = require('../../database/db');
 
 /* GET home page. */
