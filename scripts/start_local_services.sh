@@ -1,7 +1,7 @@
 
 HOME="$(dirname "$(realpath -- "$0")")"/..;
 
-cd $HOME/scripts/services
+cd $HOME/shared/services
 
 TEST=$(ls)
 
