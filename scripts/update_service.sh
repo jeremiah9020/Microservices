@@ -1,10 +1,5 @@
 if [ $# -eq 0 ]; then
-    >&2 echo "Please provide the name of the service and the path"
-    exit 1
-fi
-
-if [ $# -eq 1 ]; then
-    >&2 echo "Please provide the path to the folder containing the docker file relative to the base directory"
+    >&2 echo "Please provide the name of the service"
     exit 1
 fi
 
@@ -14,7 +9,7 @@ DATE="$(date +"%Y-%m-%d-%H-%M-%S")"
 az login
 
 echo "\n\nBuilding image"
-docker build -t recipescr.azurecr.io/$1:$DATE --platform linux/amd64 -f ./$2/Dockerfile .
+docker build -t recipescr.azurecr.io/$1:$DATE --platform linux/amd64 -f ./$1/src/Dockerfile .
 
 echo "\n\nPushing image to registry"
 az acr login --name recipescr   

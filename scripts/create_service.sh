@@ -1,23 +1,46 @@
 if [ $# -eq 0 ]; then
-    >&2 echo "Please provide the name of the service and the path"
+    >&2 echo "Please provide the name of the service and the port"
     exit 1
 fi
 
 if [ $# -eq 1 ]; then
-    >&2 echo "Please provide the path to the folder containing the docker file relative to the base directory"
+    >&2 echo "Please provide the port"
     exit 1
 fi
 
-cd "$(dirname "$(realpath -- "$0")")"/..;
+ROOTDIR="$(dirname "$(realpath -- "$0")")"/..;
+cd $ROOTDIR
+
+mkdir $1
+
+cp -r template/ ./$1
+
+sed -i '' "s/SERVICEPATH/$1/g" ./$1/src/Dockerfile
+sed -i '' "s/SERVICEPORT/$2/g" ./$1/src/Dockerfile
+sed -i '' "s/SERVICEPORT/$2/g" ./$1/src/bin/www
+sed -i '' "s/PORT/$2/g" ./$1/deploy.yml
+sed -i '' "s/SERVICE/$1/g" ./$1/deploy.yml
+
+mv ./$1/deploy.yml .github/workflows/deploy_$1.yml
+
+touch ./scripts/services/$1
+
+cd ./$1/src
+
+npm install
+
+cd $ROOTDIR
+
 DATE="$(date +"%Y-%m-%d-%H-%M-%S")"
 
 az login
 
+az acr login --name recipescr   
+
 echo "\n\nBuilding image"
-docker build -t recipescr.azurecr.io/$1:$DATE --platform linux/amd64 -f ./$2/Dockerfile .
+docker build -t recipescr.azurecr.io/$1:$DATE --platform linux/amd64 -f ./$1/src/Dockerfile .
 
 echo "\n\nPushing image to registry"
-az acr login --name recipescr   
 docker push recipescr.azurecr.io/$1:$DATE   
 
 echo "\n\nCreating container app"
@@ -26,7 +49,7 @@ az containerapp create \
     --resource-group recipes-rg \
     --environment recipes-env \
     --image recipescr.azurecr.io/$1:$DATE \
-    --target-port 3000 \
+    --target-port $2 \
     --ingress 'external' \
     --env-vars KEYVAULT=https://recipes-keyvault.vault.azure.net/ DB=$1-db ONLINE=true \
     --registry-server recipescr.azurecr.io
@@ -67,6 +90,3 @@ az containerapp connection create keyvault \
 
 echo "\n\nCreating database"
 az sql db create -g recipes-rg -s recipes-database-server -e GeneralPurpose -f Gen5 -c 2 --compute-model Serverless --max-size 4GB -n $1-db
-
-# I need to define swagger stuff first!
-# az apim api create --service-name service2 -g recipes-rg --api-id service2 --path '/service2' --display-name 'service2' --api-type http --protocols https --subscription-required false
