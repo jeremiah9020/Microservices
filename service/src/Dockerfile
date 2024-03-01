@@ -1,9 +1,15 @@
 FROM node:lts-alpine
 ENV NODE_ENV=production
 WORKDIR /usr/src/app
-COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
+
+COPY ["service/src/package.json", "service/src/package-lock.json*", "service/src/npm-shrinkwrap.json*", "./"]
 RUN npm install --production --silent && mv node_modules ../
-COPY . .
+
+RUN rm ../node_modules/shared
+RUN mkdir ../node_modules/shared
+COPY shared ../node_modules/shared
+COPY service/src .
+
 EXPOSE 3000
 RUN chown -R node /usr/src/app
 USER node

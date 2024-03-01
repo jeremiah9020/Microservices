@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Used as a test file for testing microservices",
   "scripts": {
-    "install": "rm -r -f ./node_modules/shared && cp -R ../../shared/ ./node_modules/shared",
     "start": "node ./bin/www"
   },
   "dependencies": {
