@@ -1,6 +1,14 @@
 #!/usr/bin/env node
 
 /**
+ * Log environment variables
+ */
+console.log(process.env)
+console.log("For some reason, this won't update, and I have no clue why")
+
+
+
+/**
  * Module dependencies.
  */
 
@@ -10,12 +18,6 @@ const debug = require('debug')('src:server');
 const http = require('http');
 const assertDatabaseConnectionOk = require('../utils/databaseConnection');
 const init = require('../database/init');
-
-/**
- * Log environment variables
- */
-console.log(process.env)
-console.log("please change")
 
 /**
  * Get port from environment and store in Express.
