@@ -15,6 +15,7 @@ const init = require('../database/init');
  * Log environment variables
  */
 console.log(process.env)
+console.log("please change")
 
 /**
  * Get port from environment and store in Express.
