@@ -4,9 +4,6 @@
  * Log environment variables
  */
 console.log(process.env)
-console.log("For some reason, this won't update, and I have no clue why")
-
-
 
 /**
  * Module dependencies.
