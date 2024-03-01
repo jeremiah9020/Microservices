@@ -11,8 +11,6 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
-    "mssql": "^10.0.2",
-    "node-fetch": "^3.3.2",
     "sequelize": "^6.37.1",
     "shared": "file:../../shared"
   },
