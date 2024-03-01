@@ -10,7 +10,6 @@ RUN mkdir ../node_modules/shared
 COPY shared ../node_modules/shared
 COPY SERVICEPATH/src .
 
-ENV PORT=SERVICEPORT
 EXPOSE SERVICEPORT
 RUN chown -R node /usr/src/app
 USER node
