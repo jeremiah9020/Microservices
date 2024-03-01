@@ -1,2 +1,2 @@
-const serviceBridge = require('./serviceBridge')
+const serviceBridge = require('./utils/serviceBridge')
 module.exports = { serviceBridge }
