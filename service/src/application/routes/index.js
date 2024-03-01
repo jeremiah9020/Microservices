@@ -4,20 +4,19 @@ const router = express.Router();
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
-  console.log(serviceBridge);
+  
+  try {
+    const response = await serviceBridge('service2', '/')
 
-  let json = {};
-  if (serviceBridge) {
-    try {
-      const response = await serviceBridge('service2', '/')
-      json = await response.json();
-    }
-    catch (error) {
-      console.error(error)
-    }
+    if (response.status > 400) throw new Error(response.statusText)
+
+    const text = await response.text();
+    res.status(200).send("response from service2: " + JSON.stringify(text));
   }
-
-  res.send("response from service2(?): " + JSON.stringify(json));
+  catch (error) {
+    console.error(error)
+    res.status(503).send("Couldn't contact service2");
+  }
 });
 
 module.exports = router;

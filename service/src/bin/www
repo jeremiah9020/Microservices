@@ -3,7 +3,6 @@
 /**
  * Log environment variables
  */
-console.log('Node fetch should be installed now.')
 console.log(process.env)
 
 /**
@@ -14,14 +13,14 @@ const app = require('../application/app');
 const sequelize = require('../database/db');
 const debug = require('debug')('src:server');
 const http = require('http');
-const assertDatabaseConnectionOk = require('../utils/databaseConnection');
+const { isDatabaseConnected }  = require('shared').database;
 const init = require('../database/init');
 
 /**
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(3000);
 app.set('port', port);
 
 /**
@@ -35,7 +34,7 @@ const server = http.createServer(app);
  * Checks if the database is connected properly
  */
 
-sequelize.then(db => assertDatabaseConnectionOk(db).then(() => init(db)))
+sequelize.then(db => isDatabaseConnected(db).then(() => init(db)))
 
 /**
  * Listen on provided port, on all network interfaces.
