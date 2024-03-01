@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 const { DaprClient, HttpMethod } = require('@dapr/dapr');
 
+console.log(DaprClient);
+console.log(HttpMethod);
+
 // const db = require('../../database/db');
 
 /* GET home page. */
