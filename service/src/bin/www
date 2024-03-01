@@ -3,8 +3,8 @@
 /**
  * Log environment variables
  */
-console.log(process.env)
 console.log('Node fetch should be installed now.')
+console.log(process.env)
 
 /**
  * Module dependencies.
