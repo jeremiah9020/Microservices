@@ -43,6 +43,9 @@ docker build -t recipescr.azurecr.io/$1:$DATE --platform linux/amd64 -f ./$1/src
 echo "\n\nPushing image to registry"
 docker push recipescr.azurecr.io/$1:$DATE   
 
+echo "\n\nCreating database"
+az sql db create -g recipes-rg -s recipes-database-server -e GeneralPurpose -f Gen5 -c 2 --compute-model Serverless --max-size 4GB -n $1-db
+
 echo "\n\nCreating container app"
 az containerapp create \
     --name $1 \
@@ -87,6 +90,3 @@ az containerapp connection create keyvault \
   --vault recipes-keyvault \
   --system-identity \
   --client-type nodejs
-
-echo "\n\nCreating database"
-az sql db create -g recipes-rg -s recipes-database-server -e GeneralPurpose -f Gen5 -c 2 --compute-model Serverless --max-size 4GB -n $1-db
