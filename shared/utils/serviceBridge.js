@@ -1,15 +1,20 @@
 const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
 
-/** @typedef {keyof services} Service */
-
-const services = {
-    service: {local: 'http://127.0.0.1:3000', online: 'https://service.happyfield-2bbfce7e.westus.azurecontainerapps.io'},
-    service2: {local: 'http://127.0.0.1:3001', online: 'https://service2.happyfield-2bbfce7e.westus.azurecontainerapps.io'}
+const services = {};
+const servicesPath = path.resolve(__dirname, '../services');
+const serviceFiles = fs.readdirSync(servicesPath);
+for (const service of serviceFiles) {
+    const servicePort = fs.readFileSync(servicesPath + '/' + service).toString()
+    services[service] = {
+        local: `http://127.0.0.1:${servicePort.trim()}`, online: `https://${service}.happyfield-2bbfce7e.westus.azurecontainerapps.io`
+    }
 }
 
 /**
  * Make a request to a different service
- * @param {Service} service 
+ * @param {String} service 
  * @param {fetch.RequestInit | undefined} [init]
  * @returns {fetch.Response}
  */
