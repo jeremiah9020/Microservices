@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - SERVICE/**
+      - shared/**
 
 jobs:
   build:

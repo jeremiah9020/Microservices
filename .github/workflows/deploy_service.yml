@@ -1,9 +1,10 @@
-name: Azure Container Apps Deploy
+name: Deploy service on push
 
 on:
   push:
     paths:
       - service/**
+      - shared/**
 
 jobs:
   build:
