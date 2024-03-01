@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
+const { DaprClient, HttpMethod } = require('@dapr/dapr');
 
-const db = require('../../database/db');
+// const db = require('../../database/db');
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
@@ -11,11 +12,6 @@ router.get('/', async function(req, res, next) {
   const serviceAppId = "service2";
   const serviceMethod = "/";
   const response = await client.invoker.invoke(serviceAppId, serviceMethod, HttpMethod.GET);
-
-
-
-
-
   res.send(response)
 });
 
