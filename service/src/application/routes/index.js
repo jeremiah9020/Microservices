@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const axios = require('axios');
+const axios = require('axios/index.cjs');
 // const db = require('../../database/db');
 
 /* GET home page. */
@@ -9,16 +9,16 @@ router.get('/', async function(req, res, next) {
 
   // Make a request for a user with a given ID
   axios.get('https://service2.happyfield-2bbfce7e.westus.azurecontainerapps.io')
-    .then(function (response) {
+    .then(function (response) {  
       // handle success
-      console.log(response);
+      console.log(response.data);
     })
     .catch(function (error) {
       // handle error
-      console.log(error);
+      console.error(error);
     })
     .finally(function () {
-      res.send(123);
+      res.send('123');
     });
 });
 
