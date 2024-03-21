@@ -16,15 +16,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    visibility: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'public'
-    },
     versions: {
       type: DataTypes.TEXT,
       allowNull: false,
-      defaultValue: '[]'
+      defaultValue: '{}'
     },
     latest: {
       type: DataTypes.STRING,

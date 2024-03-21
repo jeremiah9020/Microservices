@@ -12,7 +12,8 @@
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "sequelize": "^6.37.1",
-    "shared": "file:../../shared"
+    "shared": "file:../../shared",
+    "uuid": "^9.0.1"
   },
   "author": "Jeremiah Lynn",
   "license": "ISC"

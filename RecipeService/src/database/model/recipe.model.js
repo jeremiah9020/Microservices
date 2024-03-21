@@ -12,10 +12,6 @@ module.exports = (sequelize) => {
       unique: true,
       primaryKey: true
     },
-    owner: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     visibility: {
       type: DataTypes.STRING,
       allowNull: false,
