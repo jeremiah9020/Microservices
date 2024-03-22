@@ -1,6 +1,8 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const env = require('./env');
 
 const services = {};
 const servicesPath = path.resolve(__dirname, '../services');
@@ -19,8 +21,15 @@ for (const service of serviceFiles) {
  * @returns {fetch.Response}
  */
 async function serviceRequest(service, path, init) {
+    const token = jwt.sign({ username: 'admin' }, env.SECRET_KEY, {
+        expiresIn: '5s',
+    });
     const urlType = (process.env.ONLINE) ? 'online' : 'local';
     const url = services[service][urlType] + path;
+    if (!init.headers) {
+        init.headers = {};
+    }
+    init.headers.Authorization = token;
     return await fetch(url, init);
 }
 
