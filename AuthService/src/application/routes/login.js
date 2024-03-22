@@ -21,7 +21,7 @@ router.post('/', async function(req, res, next) {
   const userByUsername = await db.models.auth.findOne({ where: { username: user }});
 
   if (userByEmail == null && userByUsername == null) {
-      return res.status(401).json({error: 'could not authenticate the user with the given credentials.'});
+      return res.status(404).json({error: 'could not find the user with the given credentials.'});
   }
 
   const foundUser = userByUsername || userByEmail;
