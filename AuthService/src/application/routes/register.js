@@ -20,14 +20,18 @@ router.post('/', async function(req, res, next) {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
   try {
-    await db.models.auth.create({ username, email, password: hashedPassword});
+    const newUser = await db.models.auth.create({ username, email, password: hashedPassword});
     
     const access_token = jwt.sign({ username }, env.SECRET_KEY, {
       expiresIn: '7d',
     });
 
-    // TODO: add error handling
-    await serviceRequest('UserService', `/`, {method: 'post'}, { username: username });
+    try {
+      await serviceRequest('UserService', `/`, {method: 'post'}, { username: username });
+    } catch (err) {
+      await newUser.destroy();
+      throw new Error('Failed to register user with userservice')
+    }
 
     // user successfully registered
     return res.status(201)
