@@ -5,9 +5,9 @@ const serviceRequest = require('../serviceBridge');
 
 async function checkTimedOut(username, res) {
     const response = await serviceRequest('AuthService',`/timeout?username=${username}`);
-    const timeout_until = await response.json().timeout_until;
+    const json = await response.json();
 
-    if (timeout_until > Date.now()) {
+    if (Number(json.timeout_until) > Date.now()) {
         res.status(401).json({ error: 'you are timed out.' });
         return true;
     }
