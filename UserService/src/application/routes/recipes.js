@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
+const { authenticate } = require('shared');
 
 /**
  * Used to add or remove a recipe from the recipes list.
@@ -23,13 +24,17 @@ router.patch('/', authenticate.server, async function(req, res, next) {
 
   const recipes = JSON.parse(user.recipes);
 
-  for (const toRemove of remove) {
-    const index = recipes.indexOf(toRemove);
-    recipes.splice(index, 1);
+  if (remove) {
+    for (const toRemove of remove) {
+      const index = recipes.indexOf(toRemove);
+      recipes.splice(index, 1);
+    }
   }
 
-  for (const toAdd of add) {
-    recipes.push(toAdd);
+  if (add) {
+    for (const toAdd of add) {
+      recipes.push(toAdd);
+    }
   }
 
   await user.update({recipes: JSON.stringify(recipes)});
