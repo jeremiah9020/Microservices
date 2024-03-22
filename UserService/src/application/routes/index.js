@@ -34,17 +34,17 @@ router.post('/', authenticate.server, async function(req, res, next) {
 /**
  * Used to get a user’s data.
  */
-router.get('/', async function(req, res, next) {
+router.get('/', authenticate.loosely, async function(req, res, next) {
   const { username } = req.query;
   
-  if (username == null ) {
+  if (username == null && !req.username ) {
     return res.status(400).json(`Missing request query parameters`);
   }
 
   const db = await sequelize;
 
   try {
-    const user = await db.models.user.findByPk(username);
+    const user = await db.models.user.findByPk(username || req.username);
 
     const recipes = JSON.parse(user.recipes);
     const cookbooks = JSON.parse(user.cookbooks);
@@ -72,9 +72,7 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
 
   const db = await sequelize;
 
-  try {
-    const serverRequest = req.fromServer && username;
-    
+  try {    
     if (req.fromServer) {
       if (username) {
         const user = await db.models.user.findByPk(username);
