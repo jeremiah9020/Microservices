@@ -25,9 +25,6 @@ router.get('/', async function(req, res, next) {
   
     // successfully retrieved the recipe metadata
     return res.status(200).json({ metadata });
-
-    // TODO lacking authorization to view content
-    return res.status(403).json({error: 'lacking authorization to view the recipe metadata'});
   } catch (error) {
     // could not find the recipe
     return res.status(404).json({error: 'could not find the recipe'});

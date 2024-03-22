@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
 const { v4: uuidv4 } = require('uuid');
+const { authenticate } = require('shared');
+const { serviceBridge } = require('shared');
+const { getRoleObject } = require('shared/utils/roles');
 
 function getRecipeId(recipeMetadata, version) {
   // If the version id is given, use it! Otherwise, use the latest tag
@@ -21,7 +24,7 @@ function getRecipeId(recipeMetadata, version) {
 /**
  * Gets a recipe by id
  */
-router.get('/', async function(req, res, next) {
+router.get('/', authenticate.loosely, async function(req, res, next) {
   const { id, version } = req.query;
   
   if (id == null ) {
@@ -37,6 +40,24 @@ router.get('/', async function(req, res, next) {
 
     const recipeData = await db.models.recipe.findByPk(recipeId);
 
+    if (recipeData.visibility == 'private') {
+      if (recipeMetadata.owner != req.username) {
+        if (!req.username) {
+          // lacking authorization to view content
+          return res.status(403).json({error: 'lacking authorization to view the recipe'});
+        }
+
+        const request = await serviceBridge('AuthService', `/role?user=${req.username}`, {method: 'get'});
+        const response = await request.json();
+        const roles = getRoleObject(response.role)
+
+        if (!roles.canSeePrivatePosts) {
+          // lacking authorization to view content
+          return res.status(403).json({error: 'lacking authorization to view the recipe'});
+        }
+      }
+    }
+
     const ratings = JSON.parse(recipeData.ratings)
     const data = JSON.parse(recipeData.data)
     const average = ratings.length ? ratings.reduce((a, b) => a + b) / ratings.length : 0;
@@ -51,10 +72,8 @@ router.get('/', async function(req, res, next) {
   
     // successfully retrieved the recipe
     return res.status(200).json({ recipe });
-
-    // TODO lacking authorization to view content
-    return res.status(403).json({error: 'lacking authorization to view the recipe'});
   } catch (error) {
+    console.log(error);
     // could not find the recipe
     return res.status(404).json({error: 'could not find the recipe'});
   }
@@ -63,12 +82,16 @@ router.get('/', async function(req, res, next) {
 /**
  * creates a new recipe
  */
-router.post('/', async function(req, res, next) {
-  const { id, owner, tag, visibility, data } = req.body;
+router.post('/', authenticate.strictly, async function(req, res, next) {
+  const { id, tag, visibility, data } = req.body;
 
-  if (owner == null || data == null || data.title == null || data.text == null) {
+  if (data == null || data.title == null || data.text == null) {
     return res.status(400).json(`Missing request body parameters`);
   }
+
+  const owner = req.username;
+
+  // TODO: send an update request to the USER service telling it a new recipes is created.
 
   const db = await sequelize;
 
@@ -87,8 +110,7 @@ router.post('/', async function(req, res, next) {
     // successfully created the recipe
     return res.status(200).json({id: metadataId});
 
-    // TODO lacking authorization to create content
-    return res.status(403).json({error: 'lacking authorization to create the recipe'});
+    
   } catch (err) {
     return res.status(500).json({error: 'Something went wrong when creating your recipe. If you gave a recipe id, it might already be taken!'});
   }
@@ -97,7 +119,7 @@ router.post('/', async function(req, res, next) {
 /**
  * Used to edit an existing recipe, will create a new version if data field is included.
  */
-router.patch('/', async function(req, res, next) {
+router.patch('/', authenticate.strictly, async function(req, res, next) {
   const { id, version, tag, visibility, data } = req.body;
 
   if (id == null) {
@@ -109,6 +131,11 @@ router.patch('/', async function(req, res, next) {
   try {
     const recipeMetadata = await db.models.recipeMetadata.findByPk(id);
     if (recipeMetadata == null) throw new Error(); 
+
+    if (recipeMetadata.owner != req.username) {
+      // lacking authorization to update content
+      return res.status(403).json({error: 'lacking authorization to update the recipe'});
+    }
 
     if (data == null) {
       const recipeId = getRecipeId(recipeMetadata, version)
@@ -139,10 +166,6 @@ router.patch('/', async function(req, res, next) {
 
         // successfully updated the recipe
         return res.status(200).json({version: recipeTag});
-
-        // TODO lacking authorization to update content
-        return res.status(403).json({error: 'lacking authorization to update the recipe'});
-
       } catch (err) {
         return res.status(500).json({error: 'Something went wrong creating a new recipe.'});
       }
@@ -154,7 +177,7 @@ router.patch('/', async function(req, res, next) {
 });
 
 /**
- * Used to delete a recipe or a recipe version.
+ * TODO: Used to delete a recipe or a recipe version.
  */
 router.delete('/', async function(req, res, next) {
   const { id, version } = req.query;
