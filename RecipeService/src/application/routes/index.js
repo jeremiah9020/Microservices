@@ -52,7 +52,7 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
       return false;
     }
 
-    if (serverRequest || recipeIsVisible || userIsOwner || userHasRole()) {
+    if (serverRequest || recipeIsVisible || userIsOwner || await userHasRole()) {
       const ratings = JSON.parse(recipeData.ratings)
       const data = JSON.parse(recipeData.data)
       const average = ratings.length ? ratings.reduce((a, b) => a + b) / ratings.length : 0;

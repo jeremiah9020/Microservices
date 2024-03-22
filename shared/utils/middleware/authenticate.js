@@ -1,6 +1,19 @@
 const jwt = require('jsonwebtoken');
 const env = require('../env');
 const express = require('express')
+const serviceRequest = require('../serviceBridge');
+
+async function checkTimedOut(username, res) {
+    const response = await serviceRequest('AuthService',`/timeout?username=${username}`);
+    const timeout_until = await response.json().timeout_until;
+
+    if (timeout_until > Date.now()) {
+        res.status(401).json({ error: 'you are timed out.' });
+        return true;
+    }
+    
+    return false;
+}
 
 /**
  * Tries to resolve either a user access token or a server access token
@@ -43,7 +56,7 @@ const loosely = (req, res, next) => {
 /**
  * Requires either a user access token or a server access token
  * 
- * Will return 401 if none are valid
+ * Will return 401 if none are valid, or if the user has a timeout
  * 
  * Will add username to req if there is a valid access token
  * 
@@ -53,7 +66,7 @@ const loosely = (req, res, next) => {
  * @param {express.Response} res
  * @param {express.NextFunction} next
  */
-const strictly = (req, res, next) => {
+const strictly = async (req, res, next) => {
     const headerToken = req.header('Authorization');
     const cookieToken = req.cookies.ACCESSTOKEN;
     const serverToken = req.header('ServerAuthorization');
@@ -69,11 +82,19 @@ const strictly = (req, res, next) => {
     } catch (err) {
         try {
             const decoded = jwt.verify(headerToken, env.SECRET_KEY);
+
+            const timedOut = await checkTimedOut(decoded.username, res);
+            if (timedOut) return;
+
             req.username = decoded.username;
             return next();
         } catch (err) {
             try {
                 const decoded = jwt.verify(cookieToken, env.SECRET_KEY);
+                
+                const timedOut = await checkTimedOut(decoded.username, res);
+                if (timedOut) return;
+
                 req.username = decoded.username;
                 return next();
             } catch (err) {

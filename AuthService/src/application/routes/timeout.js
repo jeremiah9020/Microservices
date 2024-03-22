@@ -34,7 +34,7 @@ router.get('/', async function(req, res, next) {
 router.put('/', authenticate.strictly, async function(req, res, next) {
   const { username, timeout_until } = req.body;
 
-  if (username == null || rotimeout_untille == null) {
+  if (username == null || timeout_until == null) {
     return res.status(400).json(`Missing request body parameters`);
   }
 
@@ -47,7 +47,10 @@ router.put('/', authenticate.strictly, async function(req, res, next) {
     return editingUser && getRoleObject(editingUser.role).canSuspendUsers;
   } 
 
-  if (fromServer || hasRole()) {
+  if (fromServer || await hasRole()) {
+    console.log("fromserver: ", fromServer)
+    console.log("hasRole: ", hasRole())
+
     const user = await db.models.auth.findOne({ where: { username }});
 
     if (user == null) {

@@ -60,7 +60,7 @@ router.put('/', authenticate.strictly, async function(req, res, next) {
     return editingUser && getRoleObject(editingUser.role).canAdjustRoles;
   } 
 
-  if (fromServer || hasRole()) {
+  if (fromServer || await hasRole()) {
     const userByEmail = await db.models.auth.findOne({ where: { email: user }});
     const userByUsername = await db.models.auth.findOne({ where: { username: user }});
 
