@@ -40,40 +40,38 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
 
     const recipeData = await db.models.recipe.findByPk(recipeId);
 
-    if (recipeData.visibility == 'private') {
-      if (recipeMetadata.owner != req.username) {
-        if (!req.username) {
-          // lacking authorization to view content
-          return res.status(403).json({error: 'lacking authorization to view the recipe'});
-        }
-
+    const recipeIsVisible = recipeData.visibility != 'private';
+    const userIsOwner = recipeMetadata.owner == req.username;
+    const serverRequest = req.fromServer;
+    const userHasRole = async () => {
+      if (req.username) {
         const request = await serviceBridge('AuthService', `/role?user=${req.username}`, {method: 'get'});
         const response = await request.json();
-        const roles = getRoleObject(response.role)
-
-        if (!roles.canSeePrivatePosts) {
-          // lacking authorization to view content
-          return res.status(403).json({error: 'lacking authorization to view the recipe'});
-        }
+        return getRoleObject(response.role).canSeePrivatePosts;
       }
+      return false;
     }
 
-    const ratings = JSON.parse(recipeData.ratings)
-    const data = JSON.parse(recipeData.data)
-    const average = ratings.length ? ratings.reduce((a, b) => a + b) / ratings.length : 0;
+    if (serverRequest || recipeIsVisible || userIsOwner || userHasRole()) {
+      const ratings = JSON.parse(recipeData.ratings)
+      const data = JSON.parse(recipeData.data)
+      const average = ratings.length ? ratings.reduce((a, b) => a + b) / ratings.length : 0;
 
-    const recipe = {
-      owner: recipeMetadata.owner,
-      visibility: recipeData.visibility,
-      references: recipeData.references,
-      rating: average,
-      data
+      const recipe = {
+        owner: recipeMetadata.owner,
+        visibility: recipeData.visibility,
+        references: recipeData.references,
+        rating: average,
+        data
+      }
+    
+      // successfully retrieved the recipe
+      return res.status(200).json({ recipe });
     }
-  
-    // successfully retrieved the recipe
-    return res.status(200).json({ recipe });
+
+    // lacking authorization to view content
+    return res.status(403).json({error: 'lacking authorization to view the recipe'});    
   } catch (error) {
-    console.log(error);
     // could not find the recipe
     return res.status(404).json({error: 'could not find the recipe'});
   }
@@ -90,6 +88,10 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
   }
 
   const owner = req.username;
+
+  if (!owner) {
+    return res.status(500).json(`Currently, the server is not allowed to create recipes`);
+  }
 
   // TODO: send an update request to the USER service telling it a new recipes is created.
 
@@ -132,44 +134,47 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
     const recipeMetadata = await db.models.recipeMetadata.findByPk(id);
     if (recipeMetadata == null) throw new Error(); 
 
-    if (recipeMetadata.owner != req.username) {
-      // lacking authorization to update content
-      return res.status(403).json({error: 'lacking authorization to update the recipe'});
+    const userIsOwner = recipeMetadata.owner == req.username
+    const serverRequest = req.fromServer
+
+    if (userIsOwner || serverRequest) {
+      if (data == null) {
+        const recipeId = getRecipeId(recipeMetadata, version)
+        const recipe = await db.models.recipe.findByPk(recipeId);
+        if (visibility != null) {
+          recipe.visibility = visibility
+          await recipe.save();
+          return res.status(200).json({ version: version || 'latest' });
+        }
+      } else {
+        const recipeId = uuidv4();
+        const recipeData = JSON.stringify(data);
+      
+        try {
+          const recipeVersions = JSON.parse(recipeMetadata.versions);
+          const recipeTag = (tag == null) ? uuidv4() : tag;
+  
+          if (recipeVersions.hasOwnProperty(recipeTag)) return res.status(500).json({error: 'Something went wrong creating a new recipe. The tag was already in use!'});
+  
+          if (visibility == 'public' || visibility == null) {
+            recipeMetadata.latest = recipeId;
+          } 
+          recipeVersions[recipeTag] = recipeId;
+          recipeMetadata.versions = JSON.stringify(recipeVersions);
+  
+          await db.models.recipe.create({ id: recipeId, data: recipeData, visibility });
+          await recipeMetadata.save();
+  
+          // successfully updated the recipe
+          return res.status(200).json({version: recipeTag});
+        } catch (err) {
+          return res.status(500).json({error: 'Something went wrong creating a new recipe.'});
+        }
+      }
     }
 
-    if (data == null) {
-      const recipeId = getRecipeId(recipeMetadata, version)
-      const recipe = await db.models.recipe.findByPk(recipeId);
-      if (visibility != null) {
-        recipe.visibility = visibility
-        await recipe.save();
-        return res.status(200).json({ version: version || 'latest' });
-      }
-    } else {
-      const recipeId = uuidv4();
-      const recipeData = JSON.stringify(data);
-    
-      try {
-        const recipeVersions = JSON.parse(recipeMetadata.versions);
-        const recipeTag = (tag == null) ? uuidv4() : tag;
-
-        if (recipeVersions.hasOwnProperty(recipeTag)) return res.status(500).json({error: 'Something went wrong creating a new recipe. The tag was already in use!'});
-
-        if (visibility == 'public' || visibility == null) {
-          recipeMetadata.latest = recipeId;
-        } 
-        recipeVersions[recipeTag] = recipeId;
-        recipeMetadata.versions = JSON.stringify(recipeVersions);
-
-        await db.models.recipe.create({ id: recipeId, data: recipeData, visibility });
-        await recipeMetadata.save();
-
-        // successfully updated the recipe
-        return res.status(200).json({version: recipeTag});
-      } catch (err) {
-        return res.status(500).json({error: 'Something went wrong creating a new recipe.'});
-      }
-    }
+    // lacking authorization to update content
+    return res.status(403).json({error: 'lacking authorization to update the recipe'});
   } catch (err) {
     // could not find the recipe
     return res.status(404).json({error: 'could not find the recipe'});
