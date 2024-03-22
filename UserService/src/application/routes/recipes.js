@@ -39,7 +39,7 @@ router.patch('/', authenticate.server, async function(req, res, next) {
 
   await user.update({recipes: JSON.stringify(recipes)});
 
-  // user's authentication data successfully delete
+  // user's recipes successfully updated
   return res.status(200).send();
 });
 
