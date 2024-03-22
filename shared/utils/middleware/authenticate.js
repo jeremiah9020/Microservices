@@ -88,8 +88,6 @@ const strictly = (req, res, next) => {
  * 
  * Will return 401 if it is not valid or missing
  * 
- * Will add fromServer to req if the server auth works
- * 
  * @param {express.Request} req
  * @param {express.Response} res
  * @param {express.NextFunction} next
