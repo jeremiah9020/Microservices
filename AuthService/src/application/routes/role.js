@@ -17,8 +17,8 @@ router.get('/', authenticate.strictly, async function(req, res, next) {
   const db = await sequelize;
 
   const userByEmail = await db.models.auth.findOne({ where: { email: user }});
-  const userByUsername = await db.models.auth.findByPk(user);
-  const viewingUser = await db.models.auth.findByPk(req.username);
+  const userByUsername = await db.models.auth.findOne({ where: { username: user }});
+  const viewingUser = await db.models.auth.findOne({ where: { username: req.username }});
 
   if (userByEmail == null && userByUsername == null) {
     return res.status(404).json({error: 'could not find the user'});
@@ -26,18 +26,17 @@ router.get('/', authenticate.strictly, async function(req, res, next) {
 
   const foundUser = userByUsername || userByEmail;
 
-  if (foundUser.username != req.username) {
-    const viewerRole = getRoleObject(viewingUser.role);
-    if (!viewerRole.canSeeRoles) {
-      // lacking authorization to view content
-      return res.status(403).json({error: 'lacking authorization to view the recipe'});
-    }
-  }
-  
-  const role = foundUser.role;
+  const fromServer = req.fromServer;
+  const matchingUsername = foundUser.username == req.username;
+  const hasRole = viewingUser && getRoleObject(viewingUser.role).canSeeRoles;
 
-  // successfully retrieved user's role data
-  return res.status(200).json({ role });
+  if (fromServer || matchingUsername || hasRole) {
+    // successfully retrieved user's role data
+    return res.status(200).json({ role: foundUser });
+  }
+
+  // lacking authorization to view content
+  return res.status(403).json({error: 'lacking authorization to view the recipe'});
 });
 
 /**
@@ -52,30 +51,29 @@ router.put('/', authenticate.strictly, async function(req, res, next) {
 
   const db = await sequelize;
 
-  const editingUser = await db.models.auth.findByPk(req.username);
+  const editingUser = await db.models.auth.findOne({ where: { username: req.username }});
 
-  if (editingUser) {
-    const roles = getRoleObject(editingUser.role);
+  const hasRole = editingUser && getRoleObject(editingUser.role).canAdjustRoles;
+  const fromServer = req.fromServer;
 
-    if (roles.canAdjustRoles) {
-      const userByEmail = await db.models.auth.findOne({ where: { email: user }});
-      const userByUsername = await db.models.auth.findByPk(user);
+  if (hasRole || fromServer) {
+    const userByEmail = await db.models.auth.findOne({ where: { email: user }});
+    const userByUsername = await db.models.auth.findByPk(user);
 
-      if (userByEmail == null && userByUsername == null) {
-        return res.status(404).json({error: 'could not find the user'});
-      }
-    
-      const foundUser = userByUsername || userByEmail;
+    if (userByEmail == null && userByUsername == null) {
+      return res.status(404).json({error: 'could not find the user'});
+    }
 
-      await foundUser.update({ role });
+    const foundUser = userByUsername || userByEmail;
 
-      // successfully updated user's role data
-      return res.status(200).send();
-    }    
+    await foundUser.update({ role });
+
+    // successfully updated user's role data
+    return res.status(200).send();
   }
 
   // lacking authorization to set content
-  return res.status(403).json({error: 'lacking authorization to set role data'});
+  return res.status(403).json({error: 'lacking authorization to set role data'}); 
 });
 
 module.exports = router;
