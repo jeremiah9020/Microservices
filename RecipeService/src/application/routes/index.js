@@ -3,7 +3,7 @@ const router = express.Router();
 const sequelize = require('../../database/db');
 const { v4: uuidv4 } = require('uuid');
 const { authenticate } = require('shared');
-const { serviceBridge } = require('shared');
+const { serviceRequest } = require('shared');
 const { getRoleObject } = require('shared/utils/roles');
 
 function getRecipeId(recipeMetadata, version) {
@@ -45,8 +45,7 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     const serverRequest = req.fromServer;
     const userHasRole = async () => {
       if (req.username) {
-        const request = await serviceBridge('AuthService', `/role?user=${req.username}`, {method: 'get'});
-        const response = await request.json();
+        const response = await serviceRequest('AuthService', `/role?user=${req.username}`, {method: 'get'});
         return getRoleObject(response.role).canSeePrivatePosts;
       }
       return false;

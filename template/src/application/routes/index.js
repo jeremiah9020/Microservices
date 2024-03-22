@@ -1,5 +1,5 @@
 const express = require('express');
-const { serviceBridge }  = require('shared')
+const { serviceRequest } = require('shared')
 const router = express.Router();
 
 /* GET home page. */

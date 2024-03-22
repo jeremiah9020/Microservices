@@ -18,21 +18,32 @@ for (const service of serviceFiles) {
  * Make a request to a different service
  * @param {String} service 
  * @param {fetch.RequestInit | undefined} [init]
- * @returns {fetch.Response}
+ * @returns {Promise<any>}
  */
-async function serviceRequest(service, path, init) {
+async function serviceRequest(service, path, init, json) {
     const token = jwt.sign({ fromServer: true }, env.SECRET_KEY, {
         expiresIn: '10s',
     });
 
     const urlType = (process.env.ONLINE) ? 'online' : 'local';
     const url = services[service][urlType] + path;
+
+    if (!init) {
+        init = {}
+    }
+
     if (!init.headers) {
         init.headers = {};
     }
 
+    if (json) {
+        init.headers['Content-Type'] = 'application/json';
+        init.body = JSON.stringify(json);
+    }
+
     init.headers.ServerAuthorization = token;
-    return await fetch(url, init);
+    const request = await fetch(url, init);
+    return await request.json();
 }
 
 module.exports = serviceRequest;
