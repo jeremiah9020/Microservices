@@ -18,7 +18,7 @@ for (const service of serviceFiles) {
  * Make a request to a different service
  * @param {String} service 
  * @param {fetch.RequestInit | undefined} [init]
- * @returns {Promise<any>}
+ * @returns {Promise<fetch.Response>}
  */
 async function serviceRequest(service, path, init, json) {
     const token = jwt.sign({ fromServer: true }, env.SECRET_KEY, {
@@ -42,8 +42,7 @@ async function serviceRequest(service, path, init, json) {
     }
 
     init.headers.ServerAuthorization = token;
-    const request = await fetch(url, init);
-    return await request.json();
+    return await fetch(url, init);
 }
 
 module.exports = serviceRequest;
