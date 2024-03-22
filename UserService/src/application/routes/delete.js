@@ -1,30 +1,33 @@
 const express = require('express');
 const router = express.Router();
+const sequelize = require('../../database/db');
+const { authenticate } = require('shared');
 
 /**
  * Used to delete a user completely, requires reauthentication.
  */
-router.delete('/', async function(req, res, next) {
-  const { id, username, password } = req.body;
+router.post('/', authenticate.server, async function(req, res, next) {
+  const { username } = req.body;
 
-  if (id == null || username == null || password == null) {
+  if (username == null ) {
     return res.status(400).json(`Missing request body parameters`);
   }
 
-  // successfully delete the user
-  return res.status(200).send();
+  const db = await sequelize;
 
-  const editorHasRole = async () => {
-    if (req.username) {
-      const response = await serviceRequest('AuthService', `/role?user=${req.username}`, {method: 'get'});
-      const json = await response.json();
-      return getRoleObject(json.role);
-    }
-    return false;
+  const user = await db.models.user.findByPk(username);
+
+  if (user == null) {
+     // could not find the user
+    return res.status(404).json({error: 'could not find the user'});
   }
 
-  // lacking authorization to delete content
-  return res.status(403).json({error: 'lacking authorization to delete the user'});
+  // TODO: do everything necessary before deleted (ie, remove followers, delete cookbooks and recipes, delete and saved content)
+
+  await user.destroy();
+
+  // user's authentication data successfully delete
+  return res.status(200).send();
 });
 
 module.exports = router;
