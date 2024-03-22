@@ -48,9 +48,6 @@ router.put('/', authenticate.strictly, async function(req, res, next) {
   } 
 
   if (fromServer || await hasRole()) {
-    console.log("fromserver: ", fromServer)
-    console.log("hasRole: ", hasRole())
-
     const user = await db.models.auth.findOne({ where: { username }});
 
     if (user == null) {
