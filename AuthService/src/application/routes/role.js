@@ -18,7 +18,6 @@ router.get('/', authenticate.strictly, async function(req, res, next) {
 
   const userByEmail = await db.models.auth.findOne({ where: { email: user }});
   const userByUsername = await db.models.auth.findOne({ where: { username: user }});
-  const viewingUser = await db.models.auth.findOne({ where: { username: req.username }});
 
   if (userByEmail == null && userByUsername == null) {
     return res.status(404).json({error: 'could not find the user'});
@@ -28,9 +27,12 @@ router.get('/', authenticate.strictly, async function(req, res, next) {
 
   const fromServer = req.fromServer;
   const matchingUsername = foundUser.username == req.username;
-  const hasRole = viewingUser && getRoleObject(viewingUser.role).canSeeRoles;
+  const hasRole = async () => {
+    const viewingUser = req.username ? await db.models.auth.findOne({ where: { username: req.username }}) : null;
+    return viewingUser && getRoleObject(viewingUser.role).canSeeRoles;
+  }
 
-  if (fromServer || matchingUsername || hasRole) {
+  if (fromServer || matchingUsername || await hasRole()) {
     // successfully retrieved user's role data
     return res.status(200).json({ role: foundUser });
   }
@@ -51,12 +53,14 @@ router.put('/', authenticate.strictly, async function(req, res, next) {
 
   const db = await sequelize;
 
-  const editingUser = await db.models.auth.findOne({ where: { username: req.username }});
-
-  const hasRole = editingUser && getRoleObject(editingUser.role).canAdjustRoles;
   const fromServer = req.fromServer;
+  
+  const hasRole = async () => {
+    const editingUser = await db.models.auth.findOne({ where: { username: req.username }});
+    return editingUser && getRoleObject(editingUser.role).canAdjustRoles;
+  } 
 
-  if (hasRole || fromServer) {
+  if (fromServer || hasRole()) {
     const userByEmail = await db.models.auth.findOne({ where: { email: user }});
     const userByUsername = await db.models.auth.findByPk(user);
 
