@@ -50,8 +50,6 @@ const getRoleObject = (roleNumber) => {
         canDeleteUsers: false
     };
 
-    console.log(roleNumber);
-
     if (roleNumber & 1) role.canSeePrivatePosts = true;
     if (roleNumber & 2) role.canSeePrivateCookbooks = true;
     if (roleNumber & 4) role.canSeeRoles = true;
@@ -60,8 +58,6 @@ const getRoleObject = (roleNumber) => {
     if (roleNumber & 32) role.canAdjustRoles = true;
     if (roleNumber & 64) role.canSuspendUsers = true;
     if (roleNumber & 128) role.canDeleteUsers = true;
-
-    console.log(role);
 
     return role;
 }
