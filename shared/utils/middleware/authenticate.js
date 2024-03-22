@@ -97,8 +97,7 @@ const strictly = (req, res, next) => {
 const server = (req, res, next) => {
     const headerToken = req.header('ServerAuthorization');
     try {
-        const decoded = jwt.verify(headerToken, env.SECRET_KEY);
-        req.fromServer = decoded.fromServer;
+        jwt.verify(headerToken, env.SECRET_KEY);
         return next();
     } catch (error) {
         return res.status(401).json({ error: 'Incorrect or missing authorization' });
