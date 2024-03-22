@@ -34,7 +34,7 @@ router.get('/', authenticate.strictly, async function(req, res, next) {
 
   if (fromServer || matchingUsername || await hasRole()) {
     // successfully retrieved user's role data
-    return res.status(200).json({ role: foundUser });
+    return res.status(200).json({ role: foundUser.role });
   }
 
   // lacking authorization to view content
