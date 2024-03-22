@@ -93,12 +93,9 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
     return res.status(500).json(`Currently, the server is not allowed to create recipes`);
   }
 
-  // TODO: send an update request to the USER service telling it a new recipes is created.
-
   const db = await sequelize;
 
-  let metadataId = id ? id : uuidv4(); 
-
+  const metadataId = id ? id : uuidv4(); 
   const recipeId = uuidv4();
   const recipeTag = (tag == null) ? 'original' : tag;
   const versions = JSON.stringify({[recipeTag]: recipeId});
@@ -108,6 +105,8 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
   try {
     await db.models.recipeMetadata.create({ id: metadataId, owner, versions, latest});
     await db.models.recipe.create({ id: recipeId, data: recipeData, visibility });
+
+    await serviceRequest('UserService','/recipes', { method: 'patch'}, { username: req.username, add: [metadataId]})
 
     // successfully created the recipe
     return res.status(200).json({id: metadataId});
