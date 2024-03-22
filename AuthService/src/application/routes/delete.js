@@ -2,14 +2,15 @@ const express = require('express');
 const sequelize = require('../../database/db');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const { authenticate } = require('shared');
 
 /**
  * Used to delete a user's authentication data.
  */
-router.post('/', async function(req, res, next) {
-  const { username, password} = req.body;
+router.post('/', authenticate.server, async function(req, res, next) {
+  const { username } = req.body;
 
-  if (username == null || password == null) {
+  if (username == null ) {
     return res.status(400).json(`Missing request body parameters`);
   }
 
@@ -20,11 +21,6 @@ router.post('/', async function(req, res, next) {
   if (user == null) {
      // could not find the user
     return res.status(404).json({error: 'could not find the user'});
-  }
-
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) {
-    return res.status(401).json({error: 'could not authenticate the user with the given credentials.'});
   }
 
   await user.destroy();
