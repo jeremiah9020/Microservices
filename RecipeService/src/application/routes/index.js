@@ -46,7 +46,8 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     const userHasRole = async () => {
       if (req.username) {
         const response = await serviceRequest('AuthService', `/role?user=${req.username}`, {method: 'get'});
-        return getRoleObject(response.role).canSeePrivatePosts;
+        const json = await response.json();
+        return getRoleObject(json.role).canSeePrivatePosts;
       }
       return false;
     }
