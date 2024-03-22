@@ -62,7 +62,7 @@ router.put('/', authenticate.strictly, async function(req, res, next) {
 
   if (fromServer || hasRole()) {
     const userByEmail = await db.models.auth.findOne({ where: { email: user }});
-    const userByUsername = await db.models.auth.findByPk(user);
+    const userByUsername = await db.models.auth.findOne({ where: { username: user }});
 
     if (userByEmail == null && userByUsername == null) {
       return res.status(404).json({error: 'could not find the user'});
