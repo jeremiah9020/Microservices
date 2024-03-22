@@ -26,6 +26,8 @@ router.post('/', async function(req, res, next) {
       expiresIn: '7d',
     });
 
+    // TODO: send a request to the Userservice to create a new user.
+
      // user successfully registered
     return res.status(201)
       .cookie('ACCESSTOKEN', access_token, {httpOnly: true, path: '/', sameSite: true})
