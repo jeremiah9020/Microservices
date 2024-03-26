@@ -7,7 +7,9 @@ module.exports = async (db) => {
     console.log('Attempting to sync models')
     try {
         await db.models.recipe.sync({ force: !process.env.ONLINE })
-        await db.models.recipeMetadata.sync({ force: !process.env.ONLINE })
+        await db.models.metadata.sync({ force: !process.env.ONLINE })
+        await db.models.version.sync({ force: !process.env.ONLINE })
+        await db.models.rating.sync({ force: !process.env.ONLINE })
         console.log('Models successfully synced');
     } catch (error) {
         console.error('Unable to sync the models:');

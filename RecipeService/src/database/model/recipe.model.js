@@ -5,7 +5,7 @@ const { DataTypes, Sequelize } = require('sequelize');
  * @param {Sequelize} sequelize 
  */
 module.exports = (sequelize) => {
-  sequelize.define('recipe', {
+  return sequelize.define('recipe', {
     id: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -21,11 +21,6 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
-    },
-    ratings: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-      defaultValue: '[]'
     },
     data: {
       type: DataTypes.TEXT,

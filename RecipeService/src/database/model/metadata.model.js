@@ -1,11 +1,11 @@
 const { DataTypes, Sequelize } = require('sequelize');
 
 /**
- * Defines the recipeMetadata model, accessible under sequelize.models.recipeMetadata
+ * Defines the recipeMetadata model, accessible under sequelize.models.metadata
  * @param {Sequelize} sequelize 
  */
 module.exports = (sequelize) => {
-  sequelize.define('recipeMetadata', {
+  return sequelize.define('metadata', {
     id: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -13,15 +13,6 @@ module.exports = (sequelize) => {
       primaryKey: true
     },
     owner: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    versions: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-      defaultValue: '{}'
-    },
-    latest: {
       type: DataTypes.STRING,
       allowNull: false
     }
