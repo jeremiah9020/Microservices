@@ -72,7 +72,7 @@ class Status {
 class Body {
     /**
      * Checks if the response body has the property
-     * @param {string} code 
+     * @param {string} property 
      * @returns { Expected }
      */
     static HasProperty(property) {
@@ -89,6 +89,41 @@ class Body {
         )
     }
 
+        /**
+     * Checks if the response body has the property
+     * @param {string[]} properties 
+     * @returns { Expected }
+     */
+    static HasProperties(properties) {
+        let state;
+        return new Expected(
+            async (res) => {
+                state = res.body
+                for (const property of properties) {
+                    const keys = property.split('.');
+
+                    let current = state;
+                    for (const key of keys) {
+                        if (!current.hasOwnProperty(key)) {
+                            return false
+                        }
+
+                        current = current[key];
+                    }
+                }
+
+                return true
+            }, () => {
+                return `Return body had expected properties (${properties})`
+            }, () => {
+                return `Return body didn't have expected properties (expected keys: ${properties}, got: ${Object.keys(state)}})`
+            }
+        )
+    }
+
+
+
+
     /**
      * Checks if the response body has the value for the given property
      * @param {string} code 
@@ -100,11 +135,27 @@ class Body {
         return new Expected(
             async (res) => {
                 state = res.body
-                return state.hasOwnProperty(property) && state[property] == value;
+
+                const keys = property.split('.');
+
+
+                let current = state;
+                for (const key of keys) {
+                    if (!current.hasOwnProperty(key)) {
+                        state.value = undefined;
+                        return false
+                    }
+
+                    current = current[key];
+                }
+
+                state.value = current;
+                
+                return JSON.stringify(current) == JSON.stringify(value);
             }, () => {
-                return `Return body had correct expected value ({${property}: ${value}})`
+                return `Return body had correct expected value ({${property}: ${JSON.stringify(value)}})`
             }, () => {
-                return `Return body didn't have correct expected value (expected ${value}, got: ${state[property]}})`
+                return `Return body didn't have correct expected value (expected ${JSON.stringify(value)}, got: ${JSON.stringify(state.value)}})`
             }
         )
     }
