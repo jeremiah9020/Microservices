@@ -16,9 +16,7 @@ async function updateFollowingList(user, add, remove) {
           const removedUser = await db.models.user.findByPk(toRemove, { transaction: t });
           await removedUser.update({followers: user.followers - 1}, {transaction: t})
         });
-      } catch (err) {
-        console.log(err)
-      }
+      } catch (err) {}
      
       const index = following.indexOf(toRemove);
       following.splice(index, 1);
@@ -34,9 +32,7 @@ async function updateFollowingList(user, add, remove) {
         });
 
         following.push(toAdd);
-      } catch (err) {
-        console.log(err)
-      }
+      } catch (err) {}
     }
   }
 
