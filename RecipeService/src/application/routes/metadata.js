@@ -15,12 +15,25 @@ router.get('/', async function(req, res, next) {
   const db = await sequelize;
 
   try {
-    const recipeMetadata = await db.models.recipeMetadata.findByPk(id)
+  
+    const recipeMetadata = await db.models.metadata.findByPk(id, {
+      include: [
+          db.models.version, 
+          { model: db.models.version, as: 'latest'},
+          { model: db.models.version, include: db.models.recipe }
+        ]
+      } 
+    );
+
+    const versions = []
+    for (const version of recipeMetadata.versions) {
+      versions.push(version.name);
+    }
 
     const metadata = {
       owner: recipeMetadata.owner,
-      versions: JSON.parse(recipeMetadata.versions),
-      latest: recipeMetadata.latest
+      versions: versions,
+      latest: recipeMetadata.latest.name
     }
   
     // successfully retrieved the recipe metadata
