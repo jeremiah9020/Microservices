@@ -10,4 +10,7 @@ require('./auth/timeout');
 require('./user/index');
 require('./user/following');
 
+require('./recipe/index');
+require('./recipe/metadata');
+
 run();
