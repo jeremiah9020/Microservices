@@ -83,7 +83,7 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
         return res.status(200).send();
       } else {
 
-        // lacking authorization to update content
+        // lacking required paramater
         return res.status(400).json(`Missing request body parameters`);
       }
     } else {
