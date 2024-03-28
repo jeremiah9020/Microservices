@@ -5,6 +5,8 @@ const { authenticate } = require('shared');
 
 /**
  * Used to delete a user completely, requires reauthentication.
+ * 
+ * Used only by the server
  */
 router.post('/', authenticate.server, async function(req, res, next) {
   const { username } = req.body;

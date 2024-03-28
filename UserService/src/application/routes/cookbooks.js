@@ -5,6 +5,8 @@ const { authenticate } = require('shared');
 
 /**
  * Used to add or remove a cookbook from the cookbooks list.
+ * 
+ * Usable only by the server
  */
 router.patch('/', authenticate.server, async function(req, res, next) {
   const { username, add, remove } = req.body;
