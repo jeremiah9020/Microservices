@@ -6,19 +6,22 @@ const { authenticate } = require('shared');
 const { serviceRequest } = require('shared');
 const { getRoleObject } = require('shared/utils/roles');
 
-function getRecipeId(recipeMetadata, version) {
+function getRecipe(recipeMetadata, version) {
   // If the version id is given, use it! Otherwise, use the latest tag
-  let recipeId = recipeMetadata.latest;
+  let recipe = recipeMetadata.latest.recipe;
   if (version != null) {
-    const recipeVersions = JSON.parse(recipeMetadata.versions);
+    const recipeVersions = recipeMetadata.versions;
 
-    if (!recipeVersions.hasOwnProperty(version)) {
+
+    const recipeVersion = recipeVersions.find(x => x.name == version);
+
+    if (!recipeVersion) {
       throw new Error();
     }
 
-    recipeId = recipeVersions[version];
+    recipe = recipeVersion.recipe;
   }
-  return recipeId
+  return recipe
 }
 
 /**
@@ -34,13 +37,21 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
   const db = await sequelize;
 
   try {
-    const recipeMetadata = await db.models.recipeMetadata.findByPk(id);
+    const recipeMetadata = await db.models.metadata.findByPk(id, {
+      include: [
+        db.models.version, 
+        { model: db.models.version, as: 'latest', include: [ 
+          { model: db.models.recipe, include: db.models.rating }
+        ]},
+        { model: db.models.version, include: [ 
+          { model: db.models.recipe, include: db.models.rating }
+        ]}
+      ]
+    });
 
-    const recipeId = getRecipeId(recipeMetadata, version);
+    const recipe = getRecipe(recipeMetadata, version);
 
-    const recipeData = await db.models.recipe.findByPk(recipeId);
-
-    const recipeIsVisible = recipeData.visibility != 'private';
+    const recipeIsVisible = recipe.visibility != 'private';
     const userIsOwner = recipeMetadata.owner == req.username;
     const serverRequest = req.fromServer;
     const userHasRole = async () => {
@@ -53,25 +64,25 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     }
 
     if (serverRequest || recipeIsVisible || userIsOwner || await userHasRole()) {
-      const ratings = JSON.parse(recipeData.ratings)
-      const data = JSON.parse(recipeData.data)
-      const average = ratings.length ? ratings.reduce((a, b) => a + b) / ratings.length : 0;
+      const data = JSON.parse(recipe.data)
+      const average = recipe.ratings.length ? recipe.ratings.reduce((a, b) => a.rating + b.rating) / recipe.ratings.length : 0;
 
-      const recipe = {
+      const recipeData = {
         owner: recipeMetadata.owner,
-        visibility: recipeData.visibility,
-        references: recipeData.references,
+        visibility: recipe.visibility,
+        references: recipe.references,
         rating: average,
         data
       }
     
       // successfully retrieved the recipe
-      return res.status(200).json({ recipe });
+      return res.status(200).json({ recipe: recipeData });
     }
 
     // lacking authorization to view content
     return res.status(403).json({error: 'lacking authorization to view the recipe'});    
   } catch (error) {
+
     // could not find the recipe
     return res.status(404).json({error: 'could not find the recipe'});
   }
@@ -96,23 +107,28 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
   const db = await sequelize;
 
   const metadataId = id ? id : uuidv4(); 
-  const recipeId = uuidv4();
   const recipeTag = (tag == null) ? 'original' : tag;
-  const versions = JSON.stringify({[recipeTag]: recipeId});
-  const latest = recipeId;
   const recipeData = JSON.stringify(data);
 
+  const transaction = await db.transaction();
   try {
-    await db.models.recipeMetadata.create({ id: metadataId, owner, versions, latest});
-    await db.models.recipe.create({ id: recipeId, data: recipeData, visibility });
+    const recipe = await db.models.recipe.create({ data: recipeData, visibility }, { transaction });
+    const version = await db.models.version.create({ name: recipeTag }, { transaction });
+    const metadata = await db.models.metadata.create({ id: metadataId, owner }, { transaction });
+
+    await metadata.addVersion(version);
+    await metadata.setLatest(version);
+    await version.setRecipe(recipe);
 
     await serviceRequest('UserService','/recipes', { method: 'patch'}, { username: req.username, add: [metadataId]})
 
+    await transaction.commit();
+  
     // successfully created the recipe
-    return res.status(200).json({id: metadataId});
-
-    
-  } catch (err) {
+    return res.status(200).json({id: metadataId}); 
+  }
+  catch (err) {
+    await transaction.rollback();
     return res.status(500).json({error: 'Something went wrong when creating your recipe. If you gave a recipe id, it might already be taken!'});
   }
 });
@@ -130,7 +146,14 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
   const db = await sequelize;
 
   try {
-    const recipeMetadata = await db.models.recipeMetadata.findByPk(id);
+    const recipeMetadata = await db.models.metadata.findByPk(id, {
+      include: [
+        db.models.version, 
+        { model: db.models.version, as: 'latest', include: db.models.recipe },
+        { model: db.models.version, include: db.models.recipe }
+      ]
+    });
+
     if (recipeMetadata == null) throw new Error(); 
 
     const userIsOwner = recipeMetadata.owner == req.username
@@ -138,30 +161,38 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
 
     if (userIsOwner || serverRequest) {
       if (data == null) {
-        const recipeId = getRecipeId(recipeMetadata, version)
-        const recipe = await db.models.recipe.findByPk(recipeId);
+        const recipe = getRecipe(recipeMetadata, version)
         if (visibility != null) {
           recipe.visibility = visibility
           await recipe.save();
           return res.status(200).json({ version: version || 'latest' });
+        } else {
+          return res.status(400).json(`Missing request body parameters`);
         }
       } else {
-        const recipeId = uuidv4();
+        if (data.title == null || data.text == null) {
+          return res.status(400).json(`Missing request body parameters`);
+        }
+
         const recipeData = JSON.stringify(data);
       
         try {
-          const recipeVersions = JSON.parse(recipeMetadata.versions);
+          const recipeVersions = recipeMetadata.versions;
           const recipeTag = (tag == null) ? uuidv4() : tag;
   
-          if (recipeVersions.hasOwnProperty(recipeTag)) return res.status(500).json({error: 'Something went wrong creating a new recipe. The tag was already in use!'});
+          if (recipeVersions.some(x => x.name == recipeTag)) return res.status(500).json({error: 'Something went wrong creating a new recipe. The tag was already in use!'});
   
+  
+          const recipe = await db.models.recipe.create({ data: recipeData, visibility });
+          const version = await db.models.version.create({ name: recipeTag });
+      
+          await recipeMetadata.addVersion(version);
+          await version.setRecipe(recipe);
+
           if (visibility == 'public' || visibility == null) {
-            recipeMetadata.latest = recipeId;
+            recipeMetadata.setLatest(version);
           } 
-          recipeVersions[recipeTag] = recipeId;
-          recipeMetadata.versions = JSON.stringify(recipeVersions);
-  
-          await db.models.recipe.create({ id: recipeId, data: recipeData, visibility });
+
           await recipeMetadata.save();
   
           // successfully updated the recipe

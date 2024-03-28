@@ -16,8 +16,8 @@ const sequelize = new Promise(async (res) => {
     const Metadata = require('./model/metadata.model')(db);
 
     Recipe.hasMany(Rating);
-    Metadata.hasMany(Version);
-    Metadata.hasOne(Recipe, {as: 'latest'});
+    Metadata.hasMany(Version, { uniqueKey: 'name' });
+    Metadata.hasOne(Version, {as: 'latest'});
     Version.hasOne(Recipe);
 
     res(db);
