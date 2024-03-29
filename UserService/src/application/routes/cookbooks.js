@@ -17,32 +17,31 @@ router.patch('/', authenticate.server, async function(req, res, next) {
 
   const db = await sequelize;
 
-  const user = await db.models.user.findByPk(username);
+  try {
+    const user = await db.models.user.findByPk(username);
 
-  if (user == null) {
-     // could not find the user
-    return res.status(404).json({error: 'could not find the user'});
-  }
-
-  const cookbooks = JSON.parse(user.cookbooks);
-
-  if (remove) {
-    for (const toRemove of remove) {
-      const index = cookbooks.indexOf(toRemove);
-      cookbooks.splice(index, 1);
+    if (user == null) {
+       // could not find the user
+      return res.status(404).json({error: 'could not find the user'});
     }
-  }
-
-  if (add) {
-    for (const toAdd of add) {
-      cookbooks.push(toAdd);
+  
+    if (remove) {
+      for (const toRemove of remove) {
+        user.removeCookbook(toRemove)
+      }
     }
+  
+    if (add) {
+      for (const toAdd of add) {
+        user.addCookbook(toAdd)
+      }
+    }
+  
+    // user's cookbooks successfully updated
+    return res.status(200).send();
+  } catch (err) {
+    return res.status(500).send('Something went wrong.');
   }
-
-  await user.update({cookbooks: JSON.stringify(cookbooks)});
-
-  // user's cookbooks successfully updated
-  return res.status(200).send();
 });
 
 

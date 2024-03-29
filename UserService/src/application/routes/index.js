@@ -23,7 +23,7 @@ router.post('/', authenticate.server, async function(req, res, next) {
   try {
     // TODO: create a default cookbook
 
-    await db.models.user.create({ username, data})
+    await db.models.user.create({ username, data })
     return res.status(200).send();
   } catch (err) {
     // could not find the user
@@ -44,12 +44,27 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
   const db = await sequelize;
 
   try {
-    const user = await db.models.user.findByPk(username || req.username);
+    const user = await db.models.user.findByPk(username || req.username, {
+      include: [
+        { model: db.models.user, as: 'following' },
+        { model: db.models.recipe, as: 'recipes' },
+        { model: db.models.cookbook, as: 'cookbooks' }
+      ]
+    });
 
-    const recipes = JSON.parse(user.recipes);
-    const cookbooks = JSON.parse(user.cookbooks);
-    const following = JSON.parse(user.following);
-    const followers = user.followers;
+    const followers = await db.models.user.count({
+      include: [
+        {
+          model: db.models.user, 
+          as: 'following', 
+          where: { username: username || req.username }
+        }
+      ]
+    });
+
+    const recipes = user.recipes.map(x => x.id);
+    const cookbooks = user.cookbooks.map(x => x.id);
+    const following = user.following.map(x => x.username);
     const data = JSON.parse(user.data);
 
     // successfully retrieved the user data

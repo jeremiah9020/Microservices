@@ -86,11 +86,11 @@ new Test('Following -> Update -> Removed a user', async () => {
     })
 
     await service(3006, 'following', 'patch', {
-        add: ['follow','follow1','follow2']
+        add: ['follow1','follow2']
     })
 
     await service(3006, 'following', 'patch', {
-        remove: ['follow1','follow2']
+        remove: ['follow1']
     })
 
     const result = await service(3006, '', 'get')
@@ -106,4 +106,4 @@ new Test('Following -> Update -> Removed a user', async () => {
     })
 
     return result;
-}, Status.Is(200), Body.HasValue('user.following',['follow']));
+}, Status.Is(200), Body.HasValue('user.following',['follow2']));

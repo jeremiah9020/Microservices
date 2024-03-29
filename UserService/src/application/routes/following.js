@@ -4,39 +4,25 @@ const sequelize = require('../../database/db');
 const { authenticate } = require('shared');
 
 async function updateFollowingList(user, add, remove) {
-  const following = JSON.parse(user.following);
-
   const db = await sequelize;
-
 
   if (remove) {
     for (const toRemove of remove) {
       try {
-        await db.transaction(async (t) => {
-          const removedUser = await db.models.user.findByPk(toRemove, { transaction: t });
-          await removedUser.update({followers: user.followers - 1}, {transaction: t})
-        });
+        const userToRemove = await db.models.user.findByPk(toRemove);
+        await user.removeFollowing(userToRemove);
       } catch (err) {}
-     
-      const index = following.indexOf(toRemove);
-      following.splice(index, 1);
     }
   }
 
   if (add) {
     for (const toAdd of add) {
       try {
-        await db.transaction(async (t) => {
-          const addedUser = await db.models.user.findByPk(toAdd, { transaction: t });
-          await addedUser.update({followers: user.followers + 1}, {transaction: t})
-        });
-
-        following.push(toAdd);
+        const userToAdd = await db.models.user.findByPk(toAdd);
+        await user.addFollowing(userToAdd);
       } catch (err) {}
     }
   }
-
-  return await user.update({following: JSON.stringify(following)});
 }
 
 

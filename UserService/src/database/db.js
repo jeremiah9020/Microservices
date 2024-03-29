@@ -10,13 +10,13 @@ const sequelize = new Promise(async (res) => {
 
     const db = await ((process.env.ONLINE) ? getProductionDatabase() : getLocalDatabase());
 
-    const modelDefiners = [
-        require('./model/user.model'),
-    ];
+    const Cookbook = require('./model/cookbook.model')(db);
+    const Recipe = require('./model/recipe.model')(db);
+    const User = require('./model/user.model')(db);
 
-    for (const modelDefiner of modelDefiners) {
-        modelDefiner(db);
-    }
+    User.hasMany(User, { as: 'following' });
+    User.hasMany(Recipe, { as: 'recipes' });
+    User.hasMany(Cookbook, { as: 'cookbooks' });
 
     res(db);
 })
