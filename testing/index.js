@@ -13,4 +13,7 @@ require('./user/following');
 require('./recipe/index');
 require('./recipe/metadata');
 
+require('./cookbook/index');
+
+
 run();
