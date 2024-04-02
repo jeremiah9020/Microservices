@@ -42,6 +42,30 @@ class Headers {
     }
 }
 
+
+/**
+ * Built-in Expected types
+ */
+class Expression {
+    /**
+     * Checks if the response has the status
+     * @param {number} code 
+     * @returns { Expected }
+     */
+    static Check(func) {
+        let myFunc = func;
+        return new Expected(
+            (res) => {
+                return myFunc(res);
+            }, () => {
+                return `Expression passed (${myFunc})`
+            }, () => {
+                return `Expression failed (${myFunc})`
+            }
+        )
+    }
+}
+
 /**
  * Built-in Expected types
  */
@@ -211,5 +235,5 @@ function run() {
     })();
 }
 
-module.exports = { run, Test, Status, Body, Headers };
+module.exports = { run, Test, Status, Body, Headers, Expression };
 

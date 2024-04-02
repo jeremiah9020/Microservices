@@ -1,5 +1,5 @@
 const { Test, Status, Body, Headers } = require('../tests');
-const service = require('../fetch');
+const {service} = require('../fetch');
 
 new Test('User -> Get -> Missing username && not logged in', async () => {
     await service(3002, 'logout', 'post', {})
