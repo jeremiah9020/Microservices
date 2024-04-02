@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
-const { authenticate, role: {getRoleObject} } = require('shared');
+const { authenticate, serviceRequest } = require('shared');
 
 
 /**
@@ -21,9 +21,10 @@ router.post('/', authenticate.server, async function(req, res, next) {
   const data = JSON.stringify({ description: ""})
 
   try {
-    // TODO: create a default cookbook
-
     await db.models.user.create({ username, data })
+
+    await serviceRequest('CookbookService', '/', {method: 'post'}, { title: 'Default Cookbook', user: username });
+
     return res.status(200).send();
   } catch (err) {
     // could not find the user
@@ -47,8 +48,8 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     const user = await db.models.user.findByPk(username || req.username, {
       include: [
         { model: db.models.user, as: 'following' },
-        { model: db.models.recipe, as: 'recipes' },
-        { model: db.models.cookbook, as: 'cookbooks' }
+        { model: db.models.entry, as: 'recipes' },
+        { model: db.models.entry, as: 'cookbooks' }
       ]
     });
 
@@ -62,8 +63,8 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
       ]
     });
 
-    const recipes = user.recipes.map(x => x.id);
-    const cookbooks = user.cookbooks.map(x => x.id);
+    const recipes = user.recipes.map(x => x.value);
+    const cookbooks = user.cookbooks.map(x => x.value);
     const following = user.following.map(x => x.username);
     const data = JSON.parse(user.data);
 

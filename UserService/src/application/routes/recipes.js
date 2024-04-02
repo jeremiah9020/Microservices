@@ -18,7 +18,9 @@ router.patch('/', authenticate.server, async function(req, res, next) {
   const db = await sequelize;
 
   try {
-    const user = await db.models.user.findByPk(username);
+    const user = await db.models.user.findByPk(username, {include: [ 
+      { model: db.models.entry, as: 'recipes'},
+    ]});
 
     if (user == null) {
        // could not find the user
@@ -27,13 +29,18 @@ router.patch('/', authenticate.server, async function(req, res, next) {
   
     if (remove) {
       for (const toRemove of remove) {
-        user.removeRecipe(toRemove);
+        try {
+          const recipe = user.recipe.find(x => x.value == toRemove);
+          await user.removeRecipe(recipe);
+          await recipe.destroy();
+        } catch (err) {}
       }
     }
   
     if (add) {
       for (const toAdd of add) {
-        user.addRecipe(toAdd);
+        const recipe = await db.models.entry.create({value: toAdd});
+        await user.addRecipe(recipe);
       }
     }
   

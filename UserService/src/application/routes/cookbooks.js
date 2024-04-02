@@ -5,20 +5,22 @@ const { authenticate } = require('shared');
 
 /**
  * Used to add or remove a cookbook from the cookbooks list.
- * 
- * Usable only by the server
  */
 router.patch('/', authenticate.server, async function(req, res, next) {
   const { username, add, remove } = req.body;
 
-  if (username == null) {
+  const owner = req.username || username;
+
+  if (owner == null) {
     return res.status(400).json(`Missing request body parameters`);
   }
 
   const db = await sequelize;
 
   try {
-    const user = await db.models.user.findByPk(username);
+    const user = await db.models.user.findByPk(owner, {include: [ 
+      { model: db.models.entry, as: 'cookbooks'},
+    ]});
 
     if (user == null) {
        // could not find the user
@@ -27,22 +29,29 @@ router.patch('/', authenticate.server, async function(req, res, next) {
   
     if (remove) {
       for (const toRemove of remove) {
-        user.removeCookbook(toRemove)
+        try {
+          const cookbook = user.cookbooks.find(x => x.value == toRemove);
+
+          // TODO: if the user owns the recipe, this should fail!
+
+          await user.removeCookbook(cookbook);
+          await cookbook.destroy();
+        } catch (err) {}
       }
     }
   
     if (add) {
       for (const toAdd of add) {
-        user.addCookbook(toAdd)
+        const cookbook = await db.models.entry.create({value: toAdd});
+        await user.addCookbook(cookbook)
       }
     }
-  
+
     // user's cookbooks successfully updated
     return res.status(200).send();
   } catch (err) {
     return res.status(500).send('Something went wrong.');
   }
 });
-
 
 module.exports = router;
