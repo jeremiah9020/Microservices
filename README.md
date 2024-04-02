@@ -32,6 +32,10 @@ This app should be very easy to get running! Follow the instructions below
 
 [JeremiahLynn](https://github.com/jeremiah9020)
 
+## Documentation
+
+[Swagger] (https://app.swaggerhub.com/apis-docs/JEREMIAH9020/test/1.0.0)
+
 ## License
 
 Copyright (C) Jeremiah Lynn 2024. All Rights Reserved.
