@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
-const { authenticate } = require('shared');
+const { authenticate, serviceRequest } = require('shared');
 
 /**
+ * TODO: Add role check!
+ * 
  * Used to add or remove a cookbook from the cookbooks list.
  */
-router.patch('/', authenticate.server, async function(req, res, next) {
+router.patch('/', authenticate.strictly, async function(req, res, next) {
   const { username, add, remove } = req.body;
 
   const owner = req.username || username;
@@ -19,7 +21,7 @@ router.patch('/', authenticate.server, async function(req, res, next) {
 
   try {
     const user = await db.models.user.findByPk(owner, {include: [ 
-      { model: db.models.entry, as: 'cookbooks'},
+      { model: db.models.cookbook, as: 'cookbooks'},
     ]});
 
     if (user == null) {
@@ -30,20 +32,26 @@ router.patch('/', authenticate.server, async function(req, res, next) {
     if (remove) {
       for (const toRemove of remove) {
         try {
-          const cookbook = user.cookbooks.find(x => x.value == toRemove);
-
-          // TODO: if the user owns the recipe, this should fail!
+          const cookbook = user.cookbooks.find(x => x.cid == toRemove);
 
           await user.removeCookbook(cookbook);
           await cookbook.destroy();
+
+          await serviceRequest('CookbookService','/reference/decrement', {method: 'post'}, {
+            id: toRemove,
+          })
         } catch (err) {}
       }
     }
   
     if (add) {
       for (const toAdd of add) {
-        const cookbook = await db.models.entry.create({value: toAdd});
+        const cookbook = await db.models.cookbook.create({ cid: toAdd });
         await user.addCookbook(cookbook)
+
+        await serviceRequest('CookbookService','/reference/increment', {method: 'post'}, {
+          id: toAdd,
+        })
       }
     }
 

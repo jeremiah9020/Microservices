@@ -11,11 +11,12 @@ const sequelize = new Promise(async (res) => {
     const db = await ((process.env.ONLINE) ? getProductionDatabase() : getLocalDatabase());
 
     const User = require('./model/user.model')(db);
-    const Entry = require('./model/entry.model')(db);
+    const Cookbook = require('./model/cookbook.model')(db);
+    const Recipe = require('./model/recipe.model')(db);
 
     User.hasMany(User, { as: 'following' });
-    User.hasMany(Entry, { as: 'recipes' });
-    User.hasMany(Entry, { as: 'cookbooks' });
+    User.hasMany(Recipe, { as: 'recipes' });
+    User.hasMany(Cookbook, { as: 'cookbooks' });
 
     res(db);
 })

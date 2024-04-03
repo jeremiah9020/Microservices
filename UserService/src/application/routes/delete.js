@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
-const { authenticate } = require('shared');
+const { authenticate, serviceRequest } = require('shared');
 
 /**
  * Used to delete a user completely, requires reauthentication.
@@ -17,16 +17,36 @@ router.post('/', authenticate.server, async function(req, res, next) {
 
   const db = await sequelize;
 
-  const user = await db.models.user.findByPk(username);
+  const user = await db.models.user.findByPk(username, {include: [
+    {model: db.models.recipe, as: 'recipes'},
+    {model: db.models.cookbook, as: 'cookbooks'},
+  ]});
 
   if (user == null) {
      // could not find the user
     return res.status(404).json({error: 'could not find the user'});
   }
 
-  // TODO: do everything necessary before deleted (ie, remove followers, delete cookbooks and recipes, delete and saved content)
+  console.log(1)
 
-  await user.destroy();
+  for (const recipe of user.recipes) {
+    const id = recipe.rid
+    await user.removeRecipe(recipe);
+    await recipe.destroy();
+
+    await serviceRequest('RecipeService','/reference/decrement', {method: 'post'}, { id })  
+  }
+
+  for (const cookbook of user.cookbooks) {
+    const id = cookbook.cid
+    await user.removeCookbook(cookbook);
+    await cookbook.destroy();
+
+    await serviceRequest('CookbookService','/reference/decrement', {method: 'post'}, { id })
+  }
+
+
+  await user.destroy({include: {model: db.models.user, as: 'following'}});
 
   // user's authentication data successfully delete
   return res.status(200).send();

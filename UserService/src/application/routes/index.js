@@ -48,8 +48,8 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     const user = await db.models.user.findByPk(username || req.username, {
       include: [
         { model: db.models.user, as: 'following' },
-        { model: db.models.entry, as: 'recipes' },
-        { model: db.models.entry, as: 'cookbooks' }
+        { model: db.models.recipe, as: 'recipes'},
+        { model: db.models.cookbook, as: 'cookbooks'}
       ]
     });
 
@@ -63,8 +63,8 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
       ]
     });
 
-    const recipes = user.recipes.map(x => x.value);
-    const cookbooks = user.cookbooks.map(x => x.value);
+    const recipes = user.recipes.map(x => x.rid);
+    const cookbooks = user.cookbooks.map(x => x.cid);
     const following = user.following.map(x => x.username);
     const data = JSON.parse(user.data);
 

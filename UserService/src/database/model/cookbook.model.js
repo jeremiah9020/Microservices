@@ -5,8 +5,8 @@ const { DataTypes, Sequelize } = require('sequelize');
  * @param {Sequelize} sequelize 
  */
 module.exports = (sequelize) => {
-  return sequelize.define('entry', {
-    value: {
+  return sequelize.define('cookbook', {
+    cid: {
       type: DataTypes.STRING,
       allowNull: false
     }
