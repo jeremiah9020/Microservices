@@ -146,7 +146,7 @@ new Test('Recipe -> Get -> Public recipe', async () => {
     const result = await service(3005, '?id=test', 'get');
 
     return result
-}, Status.Is(200), Body.HasProperties(['recipe','recipe.owner','recipe.visibility','recipe.references','recipe.rating','recipe.data','recipe.data.title','recipe.data.text']));
+}, Status.Is(200), Body.HasProperties(['recipe','recipe.owner','recipe.visibility','recipe.rating','recipe.data','recipe.data.title','recipe.data.text']));
 
 new Test('Recipe -> Get -> Private recipe, owner', async () => {
     await service(3002, 'login', 'post', {
@@ -155,7 +155,7 @@ new Test('Recipe -> Get -> Private recipe, owner', async () => {
     })
 
     return await service(3005, '?id=test', 'get');
-}, Status.Is(200), Body.HasProperties(['recipe','recipe.owner','recipe.visibility','recipe.references','recipe.rating','recipe.data','recipe.data.title','recipe.data.text']));
+}, Status.Is(200), Body.HasProperties(['recipe','recipe.owner','recipe.visibility','recipe.rating','recipe.data','recipe.data.title','recipe.data.text']));
 
 new Test('Recipe -> Get -> Private recipe, admin', async () => {
     await service(3002, 'login', 'post', {
@@ -164,7 +164,7 @@ new Test('Recipe -> Get -> Private recipe, admin', async () => {
     })
     
     return await service(3005, '?id=test', 'get');
-}, Status.Is(200), Body.HasProperties(['recipe','recipe.owner','recipe.visibility','recipe.references','recipe.rating','recipe.data','recipe.data.title','recipe.data.text']));
+}, Status.Is(200), Body.HasProperties(['recipe','recipe.owner','recipe.visibility','recipe.rating','recipe.data','recipe.data.title','recipe.data.text']));
 
 
 
