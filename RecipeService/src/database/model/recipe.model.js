@@ -11,11 +11,6 @@ module.exports = (sequelize) => {
       allowNull: false,
       defaultValue: 'public'
     },
-    references: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0
-    },
     data: {
       type: DataTypes.TEXT,
       allowNull: false,

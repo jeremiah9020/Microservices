@@ -70,7 +70,6 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
       const recipeData = {
         owner: recipeMetadata.owner,
         visibility: recipe.visibility,
-        references: recipe.references,
         rating: average,
         data
       }
@@ -209,26 +208,6 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
     // could not find the recipe
     return res.status(404).json({error: 'could not find the recipe'});
   }
-});
-
-/**
- * TODO: Used to delete a recipe or a recipe version.
- */
-router.delete('/', async function(req, res, next) {
-  const { id, version } = req.query;
-  
-  if (id == null) {
-    return res.status(400).json(`Missing request query parameters`);
-  }
-
-  // successfully deleted the recipe
-  return res.status(200).send()
-
-  // lacking authorization to delete content
-  return res.status(403).json({error: 'lacking authorization to delete the recipe'});
-
-  // could not find the recipe
-  return res.status(404).json({error: 'could not find the recipe'});
 });
 
 module.exports = router;

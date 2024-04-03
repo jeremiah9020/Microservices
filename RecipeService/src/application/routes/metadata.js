@@ -33,7 +33,8 @@ router.get('/', async function(req, res, next) {
     const metadata = {
       owner: recipeMetadata.owner,
       versions: versions,
-      latest: recipeMetadata.latest.name
+      latest: recipeMetadata.latest.name,
+      references: recipeMetadata.references
     }
   
     // successfully retrieved the recipe metadata

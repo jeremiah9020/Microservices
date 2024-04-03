@@ -15,6 +15,11 @@ module.exports = (sequelize) => {
     owner: {
       type: DataTypes.STRING,
       allowNull: false
-    }
+    },
+    references: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
   });
 };
