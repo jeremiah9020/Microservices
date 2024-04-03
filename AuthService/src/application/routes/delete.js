@@ -6,6 +6,8 @@ const { authenticate, role: { getRoleObject } } = require('shared');
 const serviceRequest = require('shared/utils/serviceBridge');
 
 /**
+ * TODO: Add role check!
+ * 
  * Used to delete a user's authentication data.
  */
 router.post('/', async function(req, res, next) {
