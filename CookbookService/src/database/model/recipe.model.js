@@ -6,10 +6,9 @@ const { DataTypes, Sequelize } = require('sequelize');
  */
 module.exports = (sequelize) => {
   return sequelize.define('recipe', {
-    id: {
+    rid: {
       type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true
     },
     version: {
       type: DataTypes.STRING,

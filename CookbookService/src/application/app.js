@@ -6,6 +6,7 @@ const app = express();
 
 const indexRouter = require('./routes/index');
 const copyRouter = require('./routes/copy');
+const referenceRouter = require('./routes/reference');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -14,6 +15,7 @@ app.use(cookieParser());
 
 app.use('/', indexRouter);
 app.use('/copy/', copyRouter);
+app.use('/reference/', referenceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

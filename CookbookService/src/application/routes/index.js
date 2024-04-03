@@ -8,15 +8,15 @@ const sequelize = require('../../database/db');
  * Creates a new cookbook
  */
 router.post('/', authenticate.strictly, async function(req, res, next) {
-  const { title, id, visibility } = req.body;
+  const { title, id, visibility, user } = req.body;
 
   if (title == null) {
     return res.status(400).json(`Missing request body parameters`);
   }
-  const owner = req.username;
+  const owner = req.username || user;
 
-  if (!owner) {
-    return res.status(500).json(`Currently, the server is not allowed to create cookbooks`);
+  if (owner == null) {
+    return res.status(400).json(`Missing request body parameters`);
   }
 
   const db = await sequelize;
@@ -38,10 +38,11 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
     const section = await db.models.section.create({}, { transaction });
 
     await cookbook.addSection(section);
-
-    await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: req.username, add: [cookbookId]})
-
+    
     await transaction.commit();
+
+    await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: owner, add: [cookbookId]})
+
   
     // successfully created the recipe
     return res.status(200).json({id: cookbookId}); 
@@ -102,7 +103,7 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
 
         for (const recipe of section.recipes) {
           const recipeObj = {
-            id: recipe.id,
+            id: recipe.rid,
             version: recipe.version
           }
 
@@ -172,22 +173,28 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
             for (const recipe of section.recipes) {
               await section.removeRecipe(recipe, { transaction });
 
-              // TODO: I think right here we may be holding on to old recipes and sections, they may need to be deleted, not sure tho!
-              // TODO: here I should decrement the reference count on the recipes in RecipeService
+              try {
+                await serviceRequest('RecipeService', '/reference/decrement', {method: 'post'}, { id: recipe.rid, version: recipe.version });
+              } catch (err) {}   
+
+              await recipe.destroy({ transaction });
             }
             await cookbook.removeSection(section, { transaction });
+
+            await section.destroy();
           }
 
           for (const section of sections) {
             const newSection = await db.models.section.create({title: section.title}, { transaction });
 
             for (const recipe of section.recipes) {
-              const newRecipe = await db.models.recipe.create({id: recipe.id, version: recipe.version}, { transaction });
+              try {
+                await serviceRequest('RecipeService', '/reference/increment', {method: 'post'}, { id: recipe.id, version: recipe.version });
+                
+                const newRecipe = await db.models.recipe.create({rid: recipe.id, version: recipe.version}, { transaction });                
 
-              await newSection.addRecipe(newRecipe, { transaction });
-
-              // TODO: here I should increment the reference count on the recipes in RecipeService. When doing so, I might want to validate each recipe individually, only adding those that exist.
-              
+                await newSection.addRecipe(newRecipe, { transaction });
+              } catch (err) {}              
             }
 
             await cookbook.addSection(newSection, { transaction });
@@ -199,10 +206,10 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
           await transaction.rollback();
           return res.status(500).json({error: 'Something went wrong when creating your cookbook.'});
         }
-
-         // successfully updated the cookbook data
-         return res.status(200).send();
       }
+      
+      // successfully updated the cookbook data
+      return res.status(200).send();
     } else {
       // lacking authorization to patch content
       return res.status(403).json({error: 'lacking authorization to update the cookbook'});
@@ -211,28 +218,6 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
     // could not find the cookbook
     return res.status(404).json({error: 'could not find the cookbook'});
   }
-});
-
-// TODO:
-
-/**
- * Deletes a cookbook by id
- */
-router.delete('/', async function(req, res, next) {
-  const { id } = req.query;
-  
-  if (id == null ) {
-    return res.status(400).json(`Missing request query parameters`);
-  }
-
-  // successfully deleted the cookbook
-  return res.status(200).send();
-
-  // lacking authorization to delete content
-  return res.status(403).json({error: 'lacking authorization to delete the cookbook'});
-
-  // could not find the cookbook
-  return res.status(404).json({error: 'could not find the cookbook'});
 });
 
 module.exports = router;
