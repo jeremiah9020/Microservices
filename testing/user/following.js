@@ -57,6 +57,11 @@ new Test('Following -> Update -> Added a user', async () => {
 
     const result = await service(3006, '', 'get')
 
+    await service(3002, 'login', 'post', {
+        user: 'follow',
+        password: 'pd'
+    })
+
     await service(3002, 'delete', 'post', {
         username: 'follow',
         password: 'pd'
@@ -95,11 +100,21 @@ new Test('Following -> Update -> Removed a user', async () => {
 
     const result = await service(3006, '', 'get')
 
+    await service(3002, 'login', 'post', {
+        user: 'follow1',
+        password: 'pd'
+    })
+
     await service(3002, 'delete', 'post', {
         username: 'follow1',
         password: 'pd'
     })
     
+    await service(3002, 'login', 'post', {
+        user: 'follow2',
+        password: 'pd'
+    })
+
     await service(3002, 'delete', 'post', {
         username: 'follow2',
         password: 'pd'

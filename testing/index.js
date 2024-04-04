@@ -1,8 +1,5 @@
 const { run } = require('./tests')
 
-const { Test, Status, Body, Headers, Expression } = require('./tests');
-const {service} = require('./fetch');
-
 require('./auth/register');
 require('./auth/login');
 require('./auth/logout');

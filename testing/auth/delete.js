@@ -2,6 +2,11 @@ const { Test, Status, Body, Headers, Expression } = require('../tests');
 const {service} = require('../fetch');
 
 new Test('Delete -> Missing username', async () => {
+    await service(3002, 'login', 'post', {
+        user: 'test',
+        password:'pd'
+    })
+
     return await service(3002, 'delete', 'post', {
         password:'pd'
     })
