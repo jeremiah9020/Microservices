@@ -23,7 +23,8 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
     const original = await db.models.cookbook.findOne({ where: { id }, include: {model: db.models.section, include: db.models.recipe }});
 
     if (original.visibility != 'private') {
-      await original.increment('times_copied',{ transaction });
+      original.times_copied += 1;
+      await original.save({transaction})
 
       const cookbookId = uuidv4();
       const cookbook = await db.models.cookbook.create({ id: cookbookId, title: original.title, owner, is_a_copy: true }, { transaction })
@@ -45,12 +46,12 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
     
       // successfully created the recipe
       return res.status(200).json({id: cookbookId});  
-    } else 
+    } 
 
-    // successfully created the recipe
+    // Recipe is private
+    await transaction.rollback();
     return res.status(403).json({error: 'Lacking authorization to copy cookbook'});  
 
-     
   } catch (err) {
     await transaction.rollback();
     return res.status(500).json({error: 'Something went wrong when creating your cookbook.'});
