@@ -4,14 +4,27 @@ const sequelize = require('../../database/db');
 const { authenticate, serviceRequest } = require('shared');
 
 /**
- * TODO: Add role check!
- * 
  * Used to add or remove a recipe from the recipes list.
  */
 router.patch('/', authenticate.strictly, async function(req, res, next) {
   const { username, add, remove } = req.body;
 
-  const owner = req.username || username;
+
+  let owner;
+  if (req.fromServer) {
+    owner = username;
+  } else if (username == null || username == req.username) {
+    owner = req.username;
+  } else {
+    owner = username;
+    // Check auth
+    const response = await serviceRequest('AuthService', `/role?user=${req.username}`, {method: 'get'});
+    const json = await response.json();
+    if (!getRoleObject(json.role).canDeleteCookbooks) {
+      // not authorized
+      return res.status(403).json({error: 'Lacking authorization to delete user.'});
+    }
+  }
 
   if (owner == null) {
     return res.status(400).json(`Missing request body parameters`);
