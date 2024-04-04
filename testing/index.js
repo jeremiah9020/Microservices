@@ -1,5 +1,8 @@
 const { run } = require('./tests')
 
+const { Test, Status, Body, Headers, Expression } = require('./tests');
+const {service} = require('./fetch');
+
 require('./auth/register');
 require('./auth/login');
 require('./auth/logout');
@@ -17,5 +20,8 @@ require('./recipe/reference');
 
 require('./cookbook/index');
 require('./cookbook/copy');
+
+require('./feed/home');
+require('./feed/query');
 
 run();

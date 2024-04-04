@@ -12,7 +12,6 @@ new Test('Cookbook -> Create -> Missing title', async () => {
         user: 'test',
         password: 'pd'
     })
-
     return await service(3003, '', 'post', {})
 }, Status.Is(400));
 
