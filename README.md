@@ -14,8 +14,12 @@ This app should be very easy to get running! Follow the instructions below
 
 ### Running the program
 
-* For each folder with a package.json, run npm install in that directory.
-
+* Install all packages
+    ```
+    cd scripts
+    sh install.sh
+    ```
+    
 * Start the services
     ```
     cd scripts
