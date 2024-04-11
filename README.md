@@ -12,24 +12,34 @@ This app should be very easy to get running! Follow the instructions below
 
 * Node / NPM
 
+* Brew (macOS) / Choco (Windows)
+
 ### Running the program
 
 * Install all packages
-    ```
+    ```sh
     cd scripts
     sh install.sh
     ```
     
 * Start the services
-    ```
+    ```sh
     cd scripts
     sh start_local_services.sh
     ```
 
 * Run the tests
-    ```
+    ```sh
     cd scripts
     sh run_test.sh
+    ```
+
+* Run the load tests
+    ```sh
+    brew install k6      # macOS
+    choco install k6     # Windows
+    cd scripts
+    sh run_load_tests.sh
     ```
 
 ## Authors
