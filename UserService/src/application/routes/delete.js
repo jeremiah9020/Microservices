@@ -27,8 +27,6 @@ router.post('/', authenticate.server, async function(req, res, next) {
     return res.status(404).json({error: 'could not find the user'});
   }
 
-  console.log(1)
-
   for (const recipe of user.recipes) {
     const id = recipe.rid
     await user.removeRecipe(recipe);
