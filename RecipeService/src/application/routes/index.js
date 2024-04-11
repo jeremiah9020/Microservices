@@ -109,27 +109,18 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
   const recipeTag = (tag == null) ? 'original' : tag;
   const recipeData = JSON.stringify(data);
 
-  const transaction = await db.transaction();
-  try {
-    const recipe = await db.models.recipe.create({ data: recipeData, visibility }, { transaction });
-    const version = await db.models.version.create({ name: recipeTag }, { transaction });
-    const metadata = await db.models.metadata.create({ id: metadataId, owner }, { transaction });
+  const recipe = await db.models.recipe.create({ data: recipeData, visibility });
+  const version = await db.models.version.create({ name: recipeTag });
+  const metadata = await db.models.metadata.create({ id: metadataId, owner });
 
-    await metadata.addVersion(version);
-    await metadata.setLatest(version);
-    await version.setRecipe(recipe);
+  await metadata.addVersion(version);
+  await metadata.setLatest(version);
+  await version.setRecipe(recipe);
 
-    await serviceRequest('UserService','/recipes', { method: 'patch'}, { username: req.username, add: [metadataId]})
+  await serviceRequest('UserService','/recipes', { method: 'patch'}, { username: req.username, add: [metadataId]})
 
-    await transaction.commit();
-  
-    // successfully created the recipe
-    return res.status(200).json({id: metadataId}); 
-  }
-  catch (err) {
-    await transaction.rollback();
-    return res.status(500).json({error: 'Something went wrong when creating your recipe. If you gave a recipe id, it might already be taken!'});
-  }
+  // successfully created the recipe
+  return res.status(200).json({id: metadataId}); 
 });
 
 /**

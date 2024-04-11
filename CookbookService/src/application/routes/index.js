@@ -23,34 +23,23 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
 
   const cookbookId = id ? id : uuidv4(); 
 
+  const cookbook = await db.models.cookbook.create(
+    { 
+      id: cookbookId, 
+      title, 
+      owner, 
+      visibility 
+    }
+  );
 
-  const transaction = await db.transaction();
-  try {
-    const cookbook = await db.models.cookbook.create(
-      { 
-        id: cookbookId, 
-        title, 
-        owner, 
-        visibility 
-      }, { transaction }
-    );
+  const section = await db.models.section.create({});
 
-    const section = await db.models.section.create({}, { transaction });
+  await cookbook.addSection(section);
 
-    await cookbook.addSection(section);
-    
-    await transaction.commit();
+  await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: owner, add: [cookbookId]})
 
-    await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: owner, add: [cookbookId]})
-
-  
-    // successfully created the recipe
-    return res.status(200).json({id: cookbookId}); 
-  }
-  catch (err) {
-    await transaction.rollback();
-    return res.status(500).json({error: 'Something went wrong when creating your cookbook.'});
-  }
+  // successfully created the cookbook
+  return res.status(200).json({id: cookbookId}); 
 });
 
 /**
@@ -167,44 +156,37 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
       }
 
       if (sections != null) {
-        const transaction = await db.transaction();
-        try {
-          for (const section of cookbook.sections) {
-            for (const recipe of section.recipes) {
-              await section.removeRecipe(recipe, { transaction });
+        for (const section of cookbook.sections) {
+          for (const recipe of section.recipes) {
+            await section.removeRecipe(recipe);
 
-              try {
-                await serviceRequest('RecipeService', '/reference/decrement', {method: 'post'}, { id: recipe.rid, version: recipe.version });
-              } catch (err) {}   
+            try {
+              await serviceRequest('RecipeService', '/reference/decrement', {method: 'post'}, { id: recipe.rid, version: recipe.version });
+            } catch (err) {}   
 
-              await recipe.destroy({ transaction });
-            }
-            await cookbook.removeSection(section, { transaction });
-
-            await section.destroy();
+            await recipe.destroy();
           }
+          await cookbook.removeSection(section);
 
-          for (const section of sections) {
-            const newSection = await db.models.section.create({title: section.title}, { transaction });
-
-            for (const recipe of section.recipes) {
-              try {
-                await serviceRequest('RecipeService', '/reference/increment', {method: 'post'}, { id: recipe.id, version: recipe.version });
-                
-                const newRecipe = await db.models.recipe.create({rid: recipe.id, version: recipe.version}, { transaction });                
-
-                await newSection.addRecipe(newRecipe, { transaction });
-              } catch (err) {}              
-            }
-
-            await cookbook.addSection(newSection, { transaction });
-          }
-
-          await transaction.commit();
+          await section.destroy();
         }
-        catch (err) {
-          await transaction.rollback();
-          return res.status(500).json({error: 'Something went wrong when creating your cookbook.'});
+
+        for (const section of sections) {
+          const newSection = await db.models.section.create({title: section.title});
+
+          for (const recipe of section.recipes) {
+            try {
+              await serviceRequest('RecipeService', '/reference/increment', {method: 'post'}, { id: recipe.id, version: recipe.version });
+              
+              const newRecipe = await db.models.recipe.create({rid: recipe.id, version: recipe.version});                
+
+              await newSection.addRecipe(newRecipe);
+
+            } catch (err) {
+            }              
+          }
+
+          await cookbook.addSection(newSection);
         }
       }
       
@@ -215,6 +197,8 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
       return res.status(403).json({error: 'lacking authorization to update the cookbook'});
     }
   } catch (err) {
+
+    console.log(err)
     // could not find the cookbook
     return res.status(404).json({error: 'could not find the cookbook'});
   }
