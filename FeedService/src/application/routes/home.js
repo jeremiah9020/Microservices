@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { serviceRequest } = require('shared');
+const { serviceRequest, authenticate } = require('shared');
 
 /**
  * Used to get a user’s home feed, or a generic one if no user is logged in. Works in batches.
  */
-router.get('/', async function(req, res, next) {
+router.get('/', authenticate.loosely, async function(req, res, next) {
   let { items, set } = req.query;
   
   items = items || 50;
