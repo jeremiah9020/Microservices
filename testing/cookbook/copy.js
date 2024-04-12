@@ -40,12 +40,12 @@ new Test('Cookbook -> Copy -> Success', async () => {
     const result2 = await service(3003, `?id=${result.body.id}`, 'get')
 
     
-    result.is_a_copy = result2.body.cookbook.is_a_copy;
+    result.is_a_copy = result2.body.cookbook?.is_a_copy;
 
     const result3 = await service(3003, '?id=testingCookbook', 'get')
 
 
-    result.times_copied = result3.body.cookbook.times_copied;
+    result.times_copied = result3.body.cookbook?.times_copied;
 
 
     return result;
