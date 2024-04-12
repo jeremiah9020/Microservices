@@ -17,6 +17,10 @@ async function isDatabaseConnected(db) {
 }
 
 
+/**
+ * Gets the production database connection
+ * @returns the production database
+ */
 async function getProductionDatabase() {
     console.log('Getting production database');
 
@@ -40,6 +44,10 @@ async function getProductionDatabase() {
     );
 }
 
+/**
+ * Gets a database for local debugging.
+ * @returns an sqlite in-memory database
+ */
 async function getLocalDatabase() {
     console.log('Getting local database');
 

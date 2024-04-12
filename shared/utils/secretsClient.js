@@ -1,7 +1,7 @@
 const { DefaultAzureCredential } = require('@azure/identity');
 const { SecretClient } = require('@azure/keyvault-secrets');
 
-/** @type { Promise<null | SecretClient } */
+/** @type { Promise<null | SecretClient> } */
 const client = new Promise((res) => {
     if (!process.env.ONLINE) {
         res(null)
