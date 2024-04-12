@@ -2,9 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
 const { v4: uuidv4 } = require('uuid');
-const { authenticate } = require('shared');
-const { serviceRequest } = require('shared');
-const { getRoleObject } = require('shared/utils/roles');
+const { authenticate, serviceRequest, grpc } = require('shared');
 
 function getRecipe(recipeMetadata, version) {
   // If the version id is given, use it! Otherwise, use the latest tag
@@ -56,9 +54,8 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     const serverRequest = req.fromServer;
     const userHasRole = async () => {
       if (req.username) {
-        const response = await serviceRequest('AuthService', `/role?user=${req.username}`, {method: 'get'});
-        const json = await response.json();
-        return getRoleObject(json.role).canSeePrivatePosts;
+        const role = await grpc.auth.getRole(req.username);
+        return role.canSeePrivatePosts;
       }
       return false;
     }
@@ -105,22 +102,27 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
 
   const db = await sequelize;
 
-  const metadataId = id ? id : uuidv4(); 
-  const recipeTag = (tag == null) ? 'original' : tag;
-  const recipeData = JSON.stringify(data);
-
-  const recipe = await db.models.recipe.create({ data: recipeData, visibility });
-  const version = await db.models.version.create({ name: recipeTag });
-  const metadata = await db.models.metadata.create({ id: metadataId, owner });
-
-  await metadata.addVersion(version);
-  await metadata.setLatest(version);
-  await version.setRecipe(recipe);
-
-  await serviceRequest('UserService','/recipes', { method: 'patch'}, { username: req.username, add: [metadataId]})
-
-  // successfully created the recipe
-  return res.status(200).json({id: metadataId}); 
+  try {
+    const metadataId = id ? id : uuidv4(); 
+    const recipeTag = (tag == null) ? 'original' : tag;
+    const recipeData = JSON.stringify(data);
+  
+    const recipe = await db.models.recipe.create({ data: recipeData, visibility });
+    const version = await db.models.version.create({ name: recipeTag });
+    const metadata = await db.models.metadata.create({ id: metadataId, owner });
+  
+    await metadata.addVersion(version);
+    await metadata.setLatest(version);
+    await version.setRecipe(recipe);
+  
+    await serviceRequest('UserService','/recipes', { method: 'patch'}, { username: req.username, add: [metadataId]})
+  
+    // successfully created the recipe
+    return res.status(200).json({id: metadataId}); 
+  } catch (err) {
+    // successfully created the recipe
+    return res.status(500).json({error: 'Could not create the recipe'}); 
+  }
 });
 
 /**

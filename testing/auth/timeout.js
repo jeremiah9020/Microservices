@@ -70,6 +70,44 @@ new Test('Timeout -> Set -> Success', async () => {
     })
 }, Status.Is(200));
 
+
+new Test('Timeout -> Set -> Denied creations', async () => {
+    await service(3002, 'login', 'post', {
+        user: 'admin',
+        password: 'password'
+    })
+
+    await service(3002, 'timeout?username=test', 'put', {
+        username: 'test',
+        timeout_until: Date.now() + 1000000
+    })
+
+    await service(3002, 'login', 'post', {
+        user: 'test',
+        password: 'pd'
+    })
+
+    const result = await service(3005, '', 'post', {
+        id: 'shouldnotwork',
+        data: {
+            text: 'text',
+            title: 'title'
+        }
+    })
+
+    await service(3002, 'login', 'post', {
+        user: 'admin',
+        password: 'password'
+    })
+
+    await service(3002, 'timeout?username=test', 'put', {
+        username: 'test',
+        timeout_until: 1
+    })
+
+    return result;
+}, Status.Is(401));
+
 new Test('Timeout -> Get -> Successful', async () => {
     return await service(3002, 'timeout?username=test', 'get')
 }, Status.Is(200), Body.HasValue('timeout_until', 1));

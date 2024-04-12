@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, serviceRequest, role: {getRoleObject: getRoleObject} } = require('shared');
+const { authenticate, serviceRequest, grpc } = require('shared');
 const { v4: uuidv4 } = require('uuid');
 const sequelize = require('../../database/db');
 
@@ -21,25 +21,31 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
 
   const db = await sequelize;
 
-  const cookbookId = id ? id : uuidv4(); 
+  try {
+    const cookbookId = id ? id : uuidv4(); 
 
-  const cookbook = await db.models.cookbook.create(
-    { 
-      id: cookbookId, 
-      title, 
-      owner, 
-      visibility 
-    }
-  );
+    const cookbook = await db.models.cookbook.create(
+      { 
+        id: cookbookId, 
+        title, 
+        owner, 
+        visibility 
+      }
+    );
+  
+    const section = await db.models.section.create({});
+  
+    await cookbook.addSection(section);
+  
+    await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: owner, add: [cookbookId]})
+  
+    // successfully created the cookbook
+    return res.status(200).json({id: cookbookId}); 
+  } catch (err) {
+    return res.status(500).json({error: 'could not create the cookbook'}); 
+  }
 
-  const section = await db.models.section.create({});
-
-  await cookbook.addSection(section);
-
-  await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: owner, add: [cookbookId]})
-
-  // successfully created the cookbook
-  return res.status(200).json({id: cookbookId}); 
+ 
 });
 
 /**
@@ -66,9 +72,8 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     const serverRequest = req.fromServer;
     const userHasRole = async () => {
       if (req.username) {
-        const response = await serviceRequest('AuthService', `/role?user=${req.username}`, {method: 'get'});
-        const json = await response.json();
-        return getRoleObject(json.role).canSeePrivateCookbooks;
+        const role = await grpc.auth.getRole(req.username);
+        return role.canSeePrivateCookbooks;
       }
       return false;
     }

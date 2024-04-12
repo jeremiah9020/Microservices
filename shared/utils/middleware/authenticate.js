@@ -2,12 +2,12 @@ const jwt = require('jsonwebtoken');
 const env = require('../env');
 const express = require('express')
 const serviceRequest = require('../serviceBridge');
+const grpc = require('../../grpc/grpc');
 
 async function checkTimedOut(username, res) {
-    const response = await serviceRequest('AuthService',`/timeout?username=${username}`);
-    const json = await response.json();
+    const timeout = await grpc.auth.getTimeout(username);
 
-    if (Number(json.timeout_until) > Date.now()) {
+    if (timeout > Date.now()) {
         res.status(401).json({ error: 'you are timed out.' });
         return true;
     }

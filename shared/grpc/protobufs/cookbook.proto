@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package cookbook;
+
+service Cookbook {
+    rpc increment(Id) returns (Empty) {}
+    rpc decrement(Id) returns (Empty) {}
+    rpc create(NewCookbook) returns (Empty) {}
+    rpc getFeed(Feed) returns (FeedOutput) {}
+}
+
+message Id {
+    string id = 1;
+}
+
+message Feed {
+    uint32 items = 1;
+    uint32 set = 2;
+    optional string query = 3;
+}
+
+message FeedOutput {
+   repeated string id = 1;
+}
+
+message NewCookbook {
+    string title = 1;
+    string username = 2;
+}
+
+message Empty {
+
+}

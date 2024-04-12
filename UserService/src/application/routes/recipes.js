@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
-const { authenticate, serviceRequest } = require('shared');
+const { authenticate, serviceRequest, grpc } = require('shared');
 
 /**
  * Used to add or remove a recipe from the recipes list.
@@ -18,9 +18,9 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
   } else {
     owner = username;
     // Check auth
-    const response = await serviceRequest('AuthService', `/role?user=${req.username}`, {method: 'get'});
-    const json = await response.json();
-    if (!getRoleObject(json.role).canDeleteCookbooks) {
+
+    const role = await grpc.auth.getRole(req.username);
+    if (!role.canDeleteCookbooks) {
       // not authorized
       return res.status(403).json({error: 'Lacking authorization to delete user.'});
     }
@@ -50,7 +50,7 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
           await user.removeRecipe(recipe);
           await recipe.destroy();
 
-          serviceRequest('RecipeService','/reference/decrement', {method: 'post'}, {
+          await serviceRequest('RecipeService','/reference/decrement', {method: 'post'}, {
             id: toRemove,
           })
         } catch (err) {}

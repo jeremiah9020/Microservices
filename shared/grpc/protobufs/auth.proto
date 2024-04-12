@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package auth;
+
+service Auth {
+    rpc getRole(Username) returns (Role) {}
+    rpc getTimeout(Username) returns (Timeout) {}
+}
+
+message Username {
+    string username = 1;
+}
+
+message Role {
+    uint32 role = 1;
+}
+
+message Timeout {
+    uint64 timeout = 1;
+} 

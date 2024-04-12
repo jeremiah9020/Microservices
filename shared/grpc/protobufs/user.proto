@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package user;
+
+service User {
+    rpc updateRecipes(Update) returns (Empty) {}
+    rpc updateCookbooks(Update) returns (Empty) {}
+    rpc delete(Username) returns (Empty) {}
+    rpc create(Username) returns (Empty) {}
+    rpc getFeed(Feed) returns (FeedOutput) {}
+}
+
+message Username {
+    string username = 1;
+}
+
+message Update {
+    string username = 1;
+    repeated string add = 2;
+    repeated string remove = 3;
+}
+
+message Feed {
+    uint32 items = 1;
+    uint32 set = 2;
+    optional string query = 3;
+}
+
+message FeedOutput {
+   repeated string id = 1;
+}
+
+message Empty {
+
+}
