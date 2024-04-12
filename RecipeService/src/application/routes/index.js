@@ -51,7 +51,6 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
 
     const recipeIsVisible = recipe.visibility != 'private';
     const userIsOwner = recipeMetadata.owner == req.username;
-    const serverRequest = req.fromServer;
     const userHasRole = async () => {
       if (req.username) {
         const role = await getRole(req.username);
@@ -60,7 +59,7 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
       return false;
     }
 
-    if (serverRequest || recipeIsVisible || userIsOwner || await userHasRole()) {
+    if (recipeIsVisible || userIsOwner || await userHasRole()) {
       const data = JSON.parse(recipe.data)
       const average = recipe.ratings.length ? recipe.ratings.reduce((a, b) => a.rating + b.rating) / recipe.ratings.length : 0;
 
@@ -148,10 +147,7 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
 
     if (recipeMetadata == null) throw new Error(); 
 
-    const userIsOwner = recipeMetadata.owner == req.username
-    const serverRequest = req.fromServer
-
-    if (userIsOwner || serverRequest) {
+    if (recipeMetadata.owner == req.username) {
       if (data == null) {
         const recipe = getRecipe(recipeMetadata, version)
         if (visibility != null) {

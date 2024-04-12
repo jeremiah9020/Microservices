@@ -50,8 +50,6 @@ const loosely = (req, res, next) => {
  * 
  * Will add username to req if there is a valid access token
  * 
- * Will add fromServer to req if the server auth works
- * 
  * @param {express.Request} req
  * @param {express.Response} res
  * @param {express.NextFunction} next

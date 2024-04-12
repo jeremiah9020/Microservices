@@ -11,13 +11,10 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
 
 
   let owner;
-  if (req.fromServer) {
-    owner = username;
-  } else if (username == null || username == req.username) {
+  if (username == null || username == req.username) {
     owner = req.username;
   } else {
     owner = username;
-    // Check auth
 
     const role = await getRole(req.username);
     if (!role.canDeleteCookbooks) {

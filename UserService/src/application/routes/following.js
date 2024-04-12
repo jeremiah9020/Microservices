@@ -30,24 +30,12 @@ async function updateFollowingList(user, add, remove) {
  * Used to add or remove a user from the following list.
  */
 router.patch('/', authenticate.strictly, async function(req, res, next) {
-  const { username, add, remove } = req.body;
+  const { add, remove } = req.body;
   
   const db = await sequelize;
 
   try {    
-    if (req.fromServer) {
-      if (username) {
-        const user = await db.models.user.findByPk(username);
-        await updateFollowingList(user, add, remove)
-
-        // successfully updated the user's following list
-        return res.status(200).send();
-      } else {
-
-        // missing username parameter
-        return res.status(400).json(`Missing request body parameters`);
-      }
-    } else {
+    {
       const user = await db.models.user.findByPk(req.username);
       await updateFollowingList(user, add, remove)
 

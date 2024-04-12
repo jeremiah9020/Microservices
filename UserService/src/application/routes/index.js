@@ -51,7 +51,7 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
  * Used to update a user’s data.
  */
 router.patch('/', authenticate.strictly, async function(req, res, next) {
-  const { username, data } = req.body;
+  const { data } = req.body;
 
   if (data == null) {
     return res.status(400).json(`Missing request body parameters`);
@@ -60,27 +60,12 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
   const db = await sequelize;
 
   try {    
-    if (req.fromServer) {
-      if (username) {
-        const user = await db.models.user.findByPk(username);
-        user.data = JSON.stringify(data);
-        await user.save();
-  
-        // successfully saved the user data
-        return res.status(200).send();
-      } else {
+    const user = await db.models.user.findByPk(req.username);
+    user.data = JSON.stringify(data);
+    await user.save();
 
-        // lacking required paramater
-        return res.status(400).json(`Missing request body parameters`);
-      }
-    } else {
-      const user = await db.models.user.findByPk(req.username);
-      user.data = JSON.stringify(data);
-      await user.save();
-
-      // successfully saved the user data
-      return res.status(200).send();
-    }
+    // successfully saved the user data
+    return res.status(200).send();
   } catch (err) {
     // could not find the user
     return res.status(404).json({error: 'could not find the user'});

@@ -69,7 +69,6 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
 
     const cookbookIsVisible = cookbook.visibility != 'private';
     const userIsOwner = cookbook.owner == req.username;
-    const serverRequest = req.fromServer;
     const userHasRole = async () => {
       if (req.username) {
         const role = await getRole(req.username);
@@ -78,7 +77,7 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
       return false;
     }
 
-    if (serverRequest || cookbookIsVisible || userIsOwner || await userHasRole()) {
+    if (cookbookIsVisible || userIsOwner || await userHasRole()) {
       const cookbookData = {
         title: cookbook.title,
         owner: cookbook.owner,

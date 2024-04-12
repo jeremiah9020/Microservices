@@ -40,14 +40,9 @@ router.put('/', authenticate.strictly, async function(req, res, next) {
 
   const db = await sequelize;
 
-  const fromServer = req.fromServer;
-  
-  const hasRole = async () => {
-    const editingUser = await db.models.auth.findOne({ where: { username: req.username }});
-    return editingUser && getRoleObject(editingUser.role).canSuspendUsers;
-  } 
+  const editingUser = await db.models.auth.findOne({ where: { username: req.username }});
 
-  if (fromServer || await hasRole()) {
+  if (getRoleObject(editingUser.role).canSuspendUsers) {
     const user = await db.models.auth.findOne({ where: { username }});
 
     if (user == null) {

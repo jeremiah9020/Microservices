@@ -10,15 +10,12 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
   const { username, add, remove } = req.body;
 
   let owner;
-  if (req.fromServer) {
-    owner = username;
-  } else if (username == null || username == req.username) {
+  if (username == null || username == req.username) {
     owner = req.username;
   } else {
     owner = username;
-    // Check auth
 
-    const role = await grpc.auth.getRole(req.username);
+    const role = await getRole(req.username);
     if (!role.canDeleteCookbooks) {
       // not authorized
       return res.status(403).json({error: 'Lacking authorization to delete user.'});
