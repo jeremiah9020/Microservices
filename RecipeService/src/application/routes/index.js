@@ -105,22 +105,27 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
 
   const db = await sequelize;
 
-  const metadataId = id ? id : uuidv4(); 
-  const recipeTag = (tag == null) ? 'original' : tag;
-  const recipeData = JSON.stringify(data);
+  try {
+      
+    const metadataId = id ? id : uuidv4(); 
+    const recipeTag = (tag == null) ? 'original' : tag;
+    const recipeData = JSON.stringify(data);
 
-  const recipe = await db.models.recipe.create({ data: recipeData, visibility });
-  const version = await db.models.version.create({ name: recipeTag });
-  const metadata = await db.models.metadata.create({ id: metadataId, owner });
+    const recipe = await db.models.recipe.create({ data: recipeData, visibility });
+    const version = await db.models.version.create({ name: recipeTag });
+    const metadata = await db.models.metadata.create({ id: metadataId, owner });
 
-  await metadata.addVersion(version);
-  await metadata.setLatest(version);
-  await version.setRecipe(recipe);
+    await metadata.addVersion(version);
+    await metadata.setLatest(version);
+    await version.setRecipe(recipe);
 
-  await serviceRequest('UserService','/recipes', { method: 'patch'}, { username: req.username, add: [metadataId]})
+    await serviceRequest('UserService','/recipes', { method: 'patch'}, { username: req.username, add: [metadataId]})
 
-  // successfully created the recipe
-  return res.status(200).json({id: metadataId}); 
+    // successfully created the recipe
+    return res.status(200).json({id: metadataId}); 
+  } catch (err) {
+    return res.status(500).json({error: 'could not create the recipe'}); 
+  }
 });
 
 /**

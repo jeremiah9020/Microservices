@@ -23,23 +23,28 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
 
   const cookbookId = id ? id : uuidv4(); 
 
-  const cookbook = await db.models.cookbook.create(
-    { 
-      id: cookbookId, 
-      title, 
-      owner, 
-      visibility 
-    }
-  );
-
-  const section = await db.models.section.create({});
-
-  await cookbook.addSection(section);
-
-  await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: owner, add: [cookbookId]})
-
-  // successfully created the cookbook
-  return res.status(200).json({id: cookbookId}); 
+  try {
+    const cookbook = await db.models.cookbook.create(
+      { 
+        id: cookbookId, 
+        title, 
+        owner, 
+        visibility 
+      }
+    );
+  
+    const section = await db.models.section.create({});
+  
+    await cookbook.addSection(section);
+  
+    await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: owner, add: [cookbookId]})
+  
+    // successfully created the cookbook
+    return res.status(200).json({id: cookbookId}); 
+  } catch (err) {
+    return res.status(500).json({error: 'could not create the cookbook'}); 
+  }
+ 
 });
 
 /**
