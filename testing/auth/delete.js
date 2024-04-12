@@ -65,19 +65,19 @@ new Test('Delete -> Success', async () => {
 
     let result = {};
 
-    result.previousRecipeRefs = (await service(3005, 'metadata?id=deleteHelperRecipe', 'get')).body.metadata.references
-    result.previousCookbookRefs = (await service(3003, '?id=deleteHelperCookbook', 'get')).body.cookbook.references
-    result.previousFollowing = (await service(3006, '?username=delete', 'get')).body.user.following
-    result.previousFollowers = (await service(3006, '?username=deleteHelper', 'get')).body.user.followers
+    result.previousRecipeRefs = (await service(3005, 'metadata?id=deleteHelperRecipe', 'get')).body.metadata?.references
+    result.previousCookbookRefs = (await service(3003, '?id=deleteHelperCookbook', 'get')).body.cookbook?.references
+    result.previousFollowing = (await service(3006, '?username=delete', 'get')).body.user?.following
+    result.previousFollowers = (await service(3006, '?username=deleteHelper', 'get')).body.user?.followers
 
     await service(3002, 'delete', 'post', {
         username:'delete',
         password:'pd'
     })
 
-    result.currentRecipeRefs = (await service(3005, 'metadata?id=deleteHelperRecipe', 'get')).body.metadata.references
-    result.currentCookbookRefs = (await service(3003, '?id=deleteHelperCookbook', 'get')).body.cookbook.references
-    result.currentFollowers = (await service(3006, '?username=deleteHelper', 'get')).body.user.followers
+    result.currentRecipeRefs = (await service(3005, 'metadata?id=deleteHelperRecipe', 'get')).body.metadata?.references
+    result.currentCookbookRefs = (await service(3003, '?id=deleteHelperCookbook', 'get')).body.cookbook?.references
+    result.currentFollowers = (await service(3006, '?username=deleteHelper', 'get')).body.user?.followers
     
     return result;
 }, 
