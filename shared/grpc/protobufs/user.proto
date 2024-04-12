@@ -27,7 +27,7 @@ message Feed {
 }
 
 message FeedOutput {
-   repeated string id = 1;
+   repeated string users = 1;
 }
 
 message Empty {

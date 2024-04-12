@@ -9,4 +9,95 @@ const { user } = grpc.loadPackageDefinition(protoLoader.loadSync(userPath))
 // Initiate the clients
 const userClient = new user.User('localhost:3106', grpc.credentials.createInsecure());
 
-module.exports = { def: user, services: { } }
+/**
+ * Updates a users cookbooks list
+ * @param {string} username 
+ * @param {Array<string>} add 
+ * @param {Array<string>} remove 
+ * @returns {Promise<null>}
+ */
+async function updateCookbooks(username, add, remove) {
+    return new Promise((resolve, reject) => {
+        userClient.delete({ username, add, remove }, (error, _) => {
+            if (error) {
+                return reject('Error in UserClient updateCookbooks');
+            } else {
+                return resolve();
+            }
+        })
+    })   
+}
+   
+/**
+ * Updates a users recipe list
+ * @param {string} username 
+ * @param {Array<string>} add 
+ * @param {Array<string>} remove 
+ * @returns {Promise<null>}
+ */
+async function updateRecipes(username, add, remove) {
+    return new Promise((resolve, reject) => {
+        userClient.delete({ username, add, remove }, (error, _) => {
+            if (error) {
+                return reject('Error in UserClient updateRecipes');
+            } else {
+                return resolve();
+            }
+        })
+    })   
+}
+
+/**
+ * Deletes a user under the user service
+ * @param {string} username 
+ * @returns {Promise<null>}
+ */
+async function deleteUser(username) {
+    return new Promise((resolve, reject) => {
+        userClient.delete({ username }, (error, _) => {
+            if (error) {
+                return reject('Error in UserClient delete');
+            } else {
+                return resolve();
+            }
+        })
+    })   
+}
+
+/**
+ * Creates a user under the user service
+ * @param {string} username 
+ * @returns {Promise<null>}
+ */
+async function create(username) {
+    return new Promise((resolve, reject) => {
+        userClient.create({ username }, (error, _) => {
+            if (error) {
+                return reject('Error in UserClient create');
+            } else {
+                return resolve();
+            }
+        })
+    })   
+}
+
+/**
+ * Gets a user feed
+ * @param {number} items 
+ * @param {number} set 
+ * @param {number} query 
+ * @returns {Promise<Array<string>>}
+ */
+async function getFeed(items = 50, set = 1, query = undefined) {
+    return new Promise((resolve, reject) => {
+        userClient.getFeed({ items, set, query }, (error, { users }) => {
+            if (error) {
+                return reject('Error in UserClient getFeed');
+            } else {
+                return resolve(users);
+            }
+        })
+    })   
+}
+
+module.exports = { def: user, services: { updateRecipes, updateCookbooks, delete: deleteUser, create, getFeed } }

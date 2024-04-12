@@ -9,4 +9,75 @@ const { cookbook } = grpc.loadPackageDefinition(protoLoader.loadSync(cookbookPat
 // Initiate the clients
 const cookbookClient = new cookbook.Cookbook('localhost:3103', grpc.credentials.createInsecure());
 
-module.exports = { def: cookbook, services: { } }
+/**
+ * Creates a cookbook for a user with an optional title.
+ * @param {string} username 
+ * @param {string} title 
+ * @returns {Promise<null>}
+ */
+async function create(username, title = undefined) {
+    return new Promise((resolve, reject) => {
+        cookbookClient.create({ username, title }, (error, _) => {
+            if (error) {
+                return reject('Error in CookbookClient create');
+            } else {
+                return resolve();
+            }
+        })
+    })   
+}
+
+/**
+ * Gets a cookbook feed
+ * @param {number} items 
+ * @param {number} set 
+ * @param {number} query 
+ * @returns {Promise<Array<string>>}
+ */
+async function getFeed(items = 50, set = 1, query = undefined) {
+    return new Promise((resolve, reject) => {
+        cookbookClient.getFeed({ items, set, query }, (error, { cookbooks }) => {
+            if (error) {
+                return reject('Error in CookbookClient getFeed');
+            } else {
+                return resolve(cookbooks);
+            }
+        })
+    })   
+}
+
+/**
+ * Increments a cookbook's reference count
+ * @param {string} id 
+ * @returns {Promise<null>}
+ */
+async function increment(id) {
+    return new Promise((resolve, reject) => {
+        cookbookClient.increment({ id }, (error, _) => {
+            if (error) {
+                return reject('Error in CookbookClient increment');
+            } else {
+                return resolve();
+            }
+        })
+    })   
+}
+
+/**
+ * Decrements a cookbook's reference count
+ * @param {string} id 
+ * @returns {Promise<null>}
+ */
+async function decrement(id) {
+    return new Promise((resolve, reject) => {
+        cookbookClient.decrement({ id }, (error, _) => {
+            if (error) {
+                return reject('Error in CookbookClient decrement');
+            } else {
+                return resolve();
+            }
+        })
+    })   
+}
+
+module.exports = { def: cookbook, services: { create, getFeed, increment, decrement } }
