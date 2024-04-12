@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
 const { v4: uuidv4 } = require('uuid');
-const { authenticate, serviceRequest } = require('shared');
+const { authenticate, serviceRequest, grpc: { user: { updateCookbooks }} } = require('shared');
 
 /**
  * Creates a copy of a cookbook with a new owner.
@@ -43,8 +43,7 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
         await cookbook.addSection(newSection);
       }
 
-
-      await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: owner, add: [cookbookId]})
+      await updateCookbooks(owner, [cookbookId], [])
     
       // successfully created the recipe
       return res.status(200).json({id: cookbookId});  

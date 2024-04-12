@@ -21,7 +21,7 @@ const userClient = new user.User(`localhost:${port}`, grpc.credentials.createIns
  */
 async function updateCookbooks(username, add, remove) {
     return new Promise((resolve, reject) => {
-        userClient.delete({ username, add, remove }, (error, _) => {
+        userClient.updateCookbooks({ username, add, remove }, (error, _) => {
             if (error) {
                 return reject('Error in UserClient updateCookbooks');
             } else {
@@ -40,7 +40,7 @@ async function updateCookbooks(username, add, remove) {
  */
 async function updateRecipes(username, add, remove) {
     return new Promise((resolve, reject) => {
-        userClient.delete({ username, add, remove }, (error, _) => {
+        userClient.updateRecipes({ username, add, remove }, (error, _) => {
             if (error) {
                 return reject('Error in UserClient updateRecipes');
             } else {
@@ -91,13 +91,13 @@ async function create(username) {
  * @param {number} query 
  * @returns {Promise<Array<string>>}
  */
-async function getFeed(items = 50, set = 1, query = undefined) {
+async function getFeed(items, set, query) {
     return new Promise((resolve, reject) => {
         userClient.getFeed({ items, set, query }, (error, { users }) => {
             if (error) {
                 return reject('Error in UserClient getFeed');
             } else {
-                return resolve(users);
+                return resolve(users || []);
             }
         })
     })   

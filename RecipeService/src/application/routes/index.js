@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
 const { v4: uuidv4 } = require('uuid');
-const { authenticate, serviceRequest, grpc } = require('shared');
+const { authenticate, serviceRequest, grpc: {auth: {getRole}, user: {updateRecipes}} } = require('shared');
 
 function getRecipe(recipeMetadata, version) {
   // If the version id is given, use it! Otherwise, use the latest tag
@@ -54,7 +54,7 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     const serverRequest = req.fromServer;
     const userHasRole = async () => {
       if (req.username) {
-        const role = await grpc.auth.getRole(req.username);
+        const role = await getRole(req.username);
         return role.canSeePrivatePosts;
       }
       return false;
@@ -114,8 +114,8 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
     await metadata.addVersion(version);
     await metadata.setLatest(version);
     await version.setRecipe(recipe);
-  
-    await serviceRequest('UserService','/recipes', { method: 'patch'}, { username: req.username, add: [metadataId]})
+
+    await updateRecipes(req.username, [metadataId], []);
   
     // successfully created the recipe
     return res.status(200).json({id: metadataId}); 

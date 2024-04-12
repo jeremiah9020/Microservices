@@ -2,7 +2,7 @@ const express = require('express');
 const sequelize = require('../../database/db');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { authenticate, serviceRequest, grpc } = require('shared');
+const { authenticate, serviceRequest, grpc: {auth: {getRole}, user: {delete: deleteUser}} } = require('shared');
 
 /**
  * Used to delete a user's authentication data.
@@ -23,7 +23,7 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
   }
 
   if (req.username && req.username != username) {
-    const role = await grpc.auth.getRole(req.username);
+    const role = await getRole(req.username);
     if (!role.canDeleteUsers) {
       // not authorized
       return res.status(403).json({error: 'Lacking authorization to delete user.'});
@@ -41,7 +41,7 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
   }
 
   await user.destroy();
-  await serviceRequest('UserService','/delete',{ method:'post' }, { username });
+  await deleteUser(username);
 
   // user's authentication data successfully delete
   return res.status(200).send();

@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sequelize = require('../../database/db');
-const { env, serviceRequest } = require('shared');
+const { env, serviceRequest, grpc: {user: {create}} } = require('shared');
 
 /**
  * Registers a new user and returns the access token, also calling a set-cookie to store said access token.
@@ -27,7 +27,7 @@ router.post('/', async function(req, res, next) {
     });
 
     try {
-      await serviceRequest('UserService', `/`, {method: 'post'}, { username: username });
+      await create(username);
     } catch (err) {
       await newUser.destroy();
       throw new Error('Failed to register user with userservice')

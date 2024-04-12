@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, serviceRequest, grpc } = require('shared');
+const { authenticate, serviceRequest, grpc: {auth: { getRole }, user: { updateCookbooks }} } = require('shared');
 const { v4: uuidv4 } = require('uuid');
 const sequelize = require('../../database/db');
 
@@ -37,7 +37,7 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
   
     await cookbook.addSection(section);
   
-    await serviceRequest('UserService','/cookbooks', { method: 'patch'}, { username: owner, add: [cookbookId]})
+    await updateCookbooks(owner, [cookbookId], [])
   
     // successfully created the cookbook
     return res.status(200).json({id: cookbookId}); 
@@ -72,7 +72,7 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     const serverRequest = req.fromServer;
     const userHasRole = async () => {
       if (req.username) {
-        const role = await grpc.auth.getRole(req.username);
+        const role = await getRole(req.username);
         return role.canSeePrivateCookbooks;
       }
       return false;
