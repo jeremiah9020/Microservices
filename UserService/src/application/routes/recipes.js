@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
-const { authenticate, serviceRequest, grpc } = require('shared');
+const { authenticate, serviceRequest, grpc: { auth: { getRole }, recipe: recipeGRPC} } = require('shared');
 
 /**
  * Used to add or remove a recipe from the recipes list.
@@ -50,9 +50,7 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
           await user.removeRecipe(recipe);
           await recipe.destroy();
 
-          await serviceRequest('RecipeService','/reference/decrement', {method: 'post'}, {
-            id: toRemove,
-          })
+          await recipeGRPC.decrement(toRemove);
         } catch (err) {}
       }
     }
@@ -62,9 +60,7 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
         const recipe = await db.models.recipe.create({ rid: toAdd });
         await user.addRecipe(recipe);
 
-        await serviceRequest('RecipeService','/reference/increment', {method: 'post'}, {
-          id: toAdd
-        })
+        await recipeGRPC.increment(toAdd);
       }
     }
   

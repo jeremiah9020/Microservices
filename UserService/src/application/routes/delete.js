@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
-const { authenticate, serviceRequest } = require('shared');
+const { authenticate, serviceRequest, grpc: { recipe: recipeGRPC } } = require('shared');
 
 /**
  * Used to delete a user completely, requires reauthentication.
@@ -32,7 +32,7 @@ router.post('/', authenticate.server, async function(req, res, next) {
     await user.removeRecipe(recipe);
     await recipe.destroy();
 
-    await serviceRequest('RecipeService','/reference/decrement', {method: 'post'}, { id })  
+    await recipeGRPC.decrement(id);
   }
 
   for (const cookbook of user.cookbooks) {

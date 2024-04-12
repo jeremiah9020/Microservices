@@ -1,4 +1,4 @@
-const { grpc: { def: { user: userDef } }, serviceRequest } = require('shared');
+const { grpc: { def: { user: userDef }, recipe: recipeGRPC }, serviceRequest } = require('shared');
 const grpc = require('@grpc/grpc-js')
 const sequelize = require('../database/db');
 const { Op } = require('sequelize');
@@ -76,9 +76,7 @@ async function updateRecipes(call, callback) {
                 await user.removeCookbook(cookbook);
                 await cookbook.destroy();
         
-                await serviceRequest('RecipeService','/reference/decrement', {method: 'post'}, {
-                    id: toRemove,
-                })        
+                await recipeGRPC.increment(toRemove);
             } catch (err) {}
         }
     }
@@ -90,9 +88,7 @@ async function updateRecipes(call, callback) {
                 const cookbook = await db.models.cookbook.create({ cid: toAdd });
                 await user.addCookbook(cookbook)
         
-                await serviceRequest('RecipeService','/reference/increment', {method: 'post'}, {
-                    id: toAdd,
-                })
+                await recipeGRPC.increment(toAdd);
             } catch (err) {}
         } 
     }
@@ -118,8 +114,7 @@ async function deleteUser(call, callback) {
       const id = recipe.rid
       await user.removeRecipe(recipe);
       await recipe.destroy();
-  
-      await serviceRequest('RecipeService','/reference/decrement', {method: 'post'}, { id })  
+      await recipeGRPC.decrement(id);
     }
   
     for (const cookbook of user.cookbooks) {

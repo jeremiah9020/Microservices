@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, serviceRequest, grpc: {auth: { getRole }, user: { updateCookbooks }} } = require('shared');
+const { authenticate, serviceRequest, grpc: {auth: { getRole }, user: { updateCookbooks }, recipe: { increment, decrement } } } = require('shared');
 const { v4: uuidv4 } = require('uuid');
 const sequelize = require('../../database/db');
 
@@ -166,7 +166,7 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
             await section.removeRecipe(recipe);
 
             try {
-              await serviceRequest('RecipeService', '/reference/decrement', {method: 'post'}, { id: recipe.rid, version: recipe.version });
+              await decrement(recipe.rid);
             } catch (err) {}   
 
             await recipe.destroy();
@@ -181,14 +181,13 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
 
           for (const recipe of section.recipes) {
             try {
-              await serviceRequest('RecipeService', '/reference/increment', {method: 'post'}, { id: recipe.id, version: recipe.version });
+              await increment(recipe.id);
               
               const newRecipe = await db.models.recipe.create({rid: recipe.id, version: recipe.version});                
 
               await newSection.addRecipe(newRecipe);
 
-            } catch (err) {
-            }              
+            } catch (err) {}              
           }
 
           await cookbook.addSection(newSection);
