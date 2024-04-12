@@ -13,5 +13,11 @@ module.exports = {
         cookbook: cookbook.def,
         recipe: recipe.def,
         user: user.def
+    },
+    port: {
+        auth: auth.port,
+        cookbook: cookbook.port,
+        recipe: recipe.port,
+        user: user.port
     }
 }

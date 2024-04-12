@@ -10,10 +10,11 @@ console.log(process.env)
  */
 
 const app = require('../application/app');
+const { startGRPC } = require('../application/grpc');
 const sequelize = require('../database/db');
 const debug = require('debug')('src:server');
 const http = require('http');
-const { isDatabaseConnected }  = require('shared').database;
+const { database: {isDatabaseConnected}, grpc: {port: {user: grpcPort}} }  = require('shared');
 const init = require('../database/init');
 
 /**
@@ -43,6 +44,11 @@ sequelize.then(db => isDatabaseConnected(db).then(() => init(db)))
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+/**
+ * Starts the GRPC server
+ */
+startGRPC(grpcPort);
 
 /**
  * Normalize a port into a number, string, or false.

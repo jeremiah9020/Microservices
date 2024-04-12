@@ -2,12 +2,15 @@ const path = require('path');
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 
+// Define the port
+const port = 3105
+
 // Load the protobuf definitions
 const recipePath = path.join(__dirname, './protobufs/recipe.proto');
 const { recipe } = grpc.loadPackageDefinition(protoLoader.loadSync(recipePath))
 
 // Initiate the clients
-const recipeClient = new recipe.Recipe('localhost:3105', grpc.credentials.createInsecure());
+const recipeClient = new recipe.Recipe(`localhost:${port}`, grpc.credentials.createInsecure());
 
 /**
  * Increments a recipe's reference count
@@ -62,4 +65,4 @@ async function getFeed(items = 50, set = 1, query = undefined) {
     })   
 }
 
-module.exports = { def: recipe, services: { increment, decrement, getFeed } }
+module.exports = { port, def: recipe, services: { increment, decrement, getFeed } }

@@ -2,12 +2,15 @@ const path = require('path');
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 
+// Define the port
+const port = 3103
+
 // Load the protobuf definitions
 const cookbookPath = path.join(__dirname, './protobufs/cookbook.proto');
 const { cookbook } = grpc.loadPackageDefinition(protoLoader.loadSync(cookbookPath))
 
 // Initiate the clients
-const cookbookClient = new cookbook.Cookbook('localhost:3103', grpc.credentials.createInsecure());
+const cookbookClient = new cookbook.Cookbook(`localhost:${port}`, grpc.credentials.createInsecure());
 
 /**
  * Creates a cookbook for a user with an optional title.
@@ -80,4 +83,4 @@ async function decrement(id) {
     })   
 }
 
-module.exports = { def: cookbook, services: { create, getFeed, increment, decrement } }
+module.exports = { port, def: cookbook, services: { create, getFeed, increment, decrement } }

@@ -34,11 +34,15 @@ async function getTimeout(call, callback) {
     return callback(null, { timeout });
 }
 
-function startGRPC() {   
+/**
+ * Starts the gRPC server
+ * @param {number} port 
+ */
+function startGRPC(port) {   
     // gRPC server setup
     const grpcServer = new grpc.Server();
     grpcServer.addService(authDef.Auth.service, { getRole, getTimeout });
-    grpcServer.bindAsync('0.0.0.0:3102', grpc.ServerCredentials.createInsecure() , () => {});
+    grpcServer.bindAsync(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure() , () => {});
 }
 
 module.exports = { startGRPC }

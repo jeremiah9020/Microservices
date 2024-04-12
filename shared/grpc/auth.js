@@ -3,12 +3,15 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const { getRoleObject } = require('../utils/roles')
 
+// Define the port
+const port = 3102
+
 // Load the protobuf definitions
 const authPath = path.join(__dirname, './protobufs/auth.proto');
 const { auth } = grpc.loadPackageDefinition(protoLoader.loadSync(authPath))
 
 // Initiate the clients
-const authClient = new auth.Auth('localhost:3102', grpc.credentials.createInsecure());
+const authClient = new auth.Auth(`localhost:${port}`, grpc.credentials.createInsecure());
 
 /**
  * Gets a user's role
@@ -44,4 +47,4 @@ async function getTimeout(username) {
     })   
 }
 
-module.exports = { def: auth, services: { getRole, getTimeout } }
+module.exports = { port, def: auth, services: { getRole, getTimeout } }
