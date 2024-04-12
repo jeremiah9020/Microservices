@@ -1,36 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
-const { authenticate, grpc: { cookbook: cookbookGRPC } } = require('shared');
-
-
-/**
- * Used to create a user
- * 
- * Only usable by servers
- */
-router.post('/', authenticate.server, async function(req, res, next) {
-  const { username } = req.body;
-  
-  if (username == null ) {
-    return res.status(400).json(`Missing request query parameters`);
-  }
-
-  const db = await sequelize;
-
-  const data = JSON.stringify({ description: ""})
-
-  try {
-    await db.models.user.create({ username, data })
-
-    await cookbookGRPC.create(username, 'Default Cookbook');
-
-    return res.status(200).send();
-  } catch (err) {
-    // could not find the user
-    return res.status(500).json({error: 'could not create the user, maybe its already taken?'});
-  } 
-});
+const { authenticate } = require('shared');
 
 /**
  * Used to get a user’s data.
