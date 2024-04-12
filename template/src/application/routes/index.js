@@ -1,5 +1,4 @@
 const express = require('express');
-const { serviceRequest } = require('shared')
 const router = express.Router();
 
 /* GET home page. */

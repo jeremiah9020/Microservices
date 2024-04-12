@@ -13,7 +13,6 @@ require('./user/cookbook');
 
 require('./recipe/index');
 require('./recipe/metadata');
-require('./recipe/reference');
 
 require('./cookbook/index');
 require('./cookbook/copy');

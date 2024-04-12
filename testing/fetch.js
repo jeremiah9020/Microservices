@@ -1,5 +1,4 @@
 const fetch = require('node-fetch');
-const { serviceRequest } = require('shared');
 
 let access_token;
 
@@ -40,18 +39,6 @@ async function service(port, path, method, body) {
     return ret;
 }
 
-async function server(name, path, method, body) {
-    const response = await serviceRequest(name, path, { method }, body)
-
-    let retBody = {}
-    try {
-        retBody = await response.json()
-    } catch (err) {}
-
-    return {status: response.status, headers:response.headers, body: retBody}
-}
-
 module.exports = {
-    service,
-    server
+    service
 }

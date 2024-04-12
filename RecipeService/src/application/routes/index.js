@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
 const { v4: uuidv4 } = require('uuid');
-const { authenticate, serviceRequest, grpc: {auth: {getRole}, user: {updateRecipes}} } = require('shared');
+const { authenticate, grpc: {auth: {getRole}, user: {updateRecipes}} } = require('shared');
 
 function getRecipe(recipeMetadata, version) {
   // If the version id is given, use it! Otherwise, use the latest tag

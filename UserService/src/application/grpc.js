@@ -1,4 +1,4 @@
-const { grpc: { def: { user: userDef }, recipe: recipeGRPC }, serviceRequest } = require('shared');
+const { grpc: { def: { user: userDef }, recipe: recipeGRPC, cookbook: cookbookGRPC } } = require('shared');
 const grpc = require('@grpc/grpc-js')
 const sequelize = require('../database/db');
 const { Op } = require('sequelize');
@@ -26,10 +26,7 @@ async function updateCookbooks(call, callback) {
             try {
                 await user.removeCookbook(cookbook);
                 await cookbook.destroy();
-        
-                await serviceRequest('CookbookService','/reference/decrement', {method: 'post'}, {
-                    id: toRemove,
-                })        
+                await cookbookGRPC.decrement(toRemove);     
             } catch (err) {}
         }
     }
@@ -40,10 +37,7 @@ async function updateCookbooks(call, callback) {
             try {
                 const cookbook = await db.models.cookbook.create({ cid: toAdd });
                 await user.addCookbook(cookbook)
-        
-                await serviceRequest('CookbookService','/reference/increment', {method: 'post'}, {
-                    id: toAdd,
-                })
+                await cookbookGRPC.increment(toAdd);     
             } catch (err) {}
         } 
     }
@@ -55,44 +49,41 @@ async function updateRecipes(call, callback) {
     const { username, add, remove } = call.request;   
   
     const db = await sequelize;
-  
-    // Get the user
+
+    
     const user = await db.models.user.findByPk(username, {include: [ 
-        { model: db.models.cookbook, as: 'cookbooks'},
+        { model: db.models.recipe, as: 'recipes'},
     ]});
-      
+
     if (user == null) {
         // could not find the user
         return callback('Could not find the user', {});
     }
-    
-   
+
     if (remove) {
         for (const toRemove of remove) {
-            const cookbook = user.cookbooks.find(x => x.cid == toRemove);
-            if (!cookbook) continue
-    
+            const recipe = user.recipe.find(x => x.rid == toRemove);
+            if (!recipe) continue;
+
             try {
-                await user.removeCookbook(cookbook);
-                await cookbook.destroy();
-        
-                await recipeGRPC.increment(toRemove);
+                await user.removeRecipe(recipe);
+                await recipe.destroy();
+                await recipeGRPC.decrement(toRemove);
+            } catch (err) {}
+        }
+    }
+
+    if (add) {
+        for (const toAdd of add) {
+            try {
+                const recipe = await db.models.recipe.create({ rid: toAdd });
+                await user.addRecipe(recipe);
+                await recipeGRPC.increment(toAdd);
             } catch (err) {}
         }
     }
     
-      
-    if (add) {
-        for (const toAdd of add) {
-            try {
-                const cookbook = await db.models.cookbook.create({ cid: toAdd });
-                await user.addCookbook(cookbook)
-        
-                await recipeGRPC.increment(toAdd);
-            } catch (err) {}
-        } 
-    }
-        
+     
     return callback(null, {});
 }
 
@@ -121,8 +112,7 @@ async function deleteUser(call, callback) {
       const id = cookbook.cid
       await user.removeCookbook(cookbook);
       await cookbook.destroy();
-  
-      await serviceRequest('CookbookService','/reference/decrement', {method: 'post'}, { id })
+      await cookbookGRPC.decrement(id);
     }
   
     await user.destroy({include: {model: db.models.user, as: 'following'}});
@@ -139,8 +129,7 @@ async function create(call, callback) {
 
     try {
         await db.models.user.create({ username, data })
-
-        await serviceRequest('CookbookService', '/', {method: 'post'}, { title: 'Default Cookbook', user: username });
+        await cookbookGRPC.create(username, 'Default Cookbook')
 
         return callback(null, {});
     } catch (err) {

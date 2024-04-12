@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
-const { authenticate, serviceRequest, grpc } = require('shared');
+const { authenticate, grpc: { auth: { getRole }, cookbook: cookbookGRPC } } = require('shared');
 
 /**
  * Used to add or remove a cookbook from the cookbooks list.
@@ -44,27 +44,24 @@ router.patch('/', authenticate.strictly, async function(req, res, next) {
   
     if (remove) {
       for (const toRemove of remove) {
-        try {
-          const cookbook = user.cookbooks.find(x => x.cid == toRemove);
+        const cookbook = user.cookbooks.find(x => x.cid == toRemove);
+        if (!cookbook) continue;
 
+        try {
           await user.removeCookbook(cookbook);
           await cookbook.destroy();
-
-          await serviceRequest('CookbookService','/reference/decrement', {method: 'post'}, {
-            id: toRemove,
-          })
+          await cookbookGRPC.decrement(toRemove);
         } catch (err) {}
       }
     }
   
     if (add) {
       for (const toAdd of add) {
-        const cookbook = await db.models.cookbook.create({ cid: toAdd });
-        await user.addCookbook(cookbook)
-
-        await serviceRequest('CookbookService','/reference/increment', {method: 'post'}, {
-          id: toAdd,
-        })
+        try {
+          const cookbook = await db.models.cookbook.create({ cid: toAdd });
+          await user.addCookbook(cookbook)
+          await cookbookGRPC.increment(toAdd);
+        } catch (err) {}
       }
     }
 

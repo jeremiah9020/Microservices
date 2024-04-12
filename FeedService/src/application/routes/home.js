@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { serviceRequest, authenticate, grpc: {recipe} } = require('shared');
+const { authenticate, grpc: {recipe} } = require('shared');
 
 /**
  * Used to get a user’s home feed, or a generic one if no user is logged in. Works in batches.

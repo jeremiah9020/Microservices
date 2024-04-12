@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
-const { authenticate, serviceRequest } = require('shared');
+const { authenticate, grpc: { cookbook: cookbookGRPC } } = require('shared');
 
 
 /**
@@ -23,7 +23,7 @@ router.post('/', authenticate.server, async function(req, res, next) {
   try {
     await db.models.user.create({ username, data })
 
-    await serviceRequest('CookbookService', '/', {method: 'post'}, { title: 'Default Cookbook', user: username });
+    await cookbookGRPC.create(username, 'Default Cookbook');
 
     return res.status(200).send();
   } catch (err) {

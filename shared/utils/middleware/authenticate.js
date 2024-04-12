@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const env = require('../env');
 const express = require('express')
-const serviceRequest = require('../serviceBridge');
 const grpc = require('../../grpc/grpc');
 
 async function checkTimedOut(username, res) {

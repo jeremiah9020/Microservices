@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, serviceRequest, grpc: {auth: { getRole }, user: { updateCookbooks }, recipe: { increment, decrement } } } = require('shared');
+const { authenticate, grpc: {auth: { getRole }, user: { updateCookbooks }, recipe: { increment, decrement } } } = require('shared');
 const { v4: uuidv4 } = require('uuid');
 const sequelize = require('../../database/db');
 
