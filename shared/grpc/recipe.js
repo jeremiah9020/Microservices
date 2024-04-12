@@ -9,4 +9,4 @@ const { recipe } = grpc.loadPackageDefinition(protoLoader.loadSync(recipePath))
 // Initiate the clients
 const recipeClient = new recipe.Recipe('localhost:3105', grpc.credentials.createInsecure());
 
-module.exports = { }
+module.exports = { def: recipe, services: { } }

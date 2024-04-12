@@ -9,4 +9,4 @@ const { cookbook } = grpc.loadPackageDefinition(protoLoader.loadSync(cookbookPat
 // Initiate the clients
 const cookbookClient = new cookbook.Cookbook('localhost:3103', grpc.credentials.createInsecure());
 
-module.exports = { }
+module.exports = { def: cookbook, services: { } }

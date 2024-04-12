@@ -44,4 +44,4 @@ async function getTimeout(username) {
     })   
 }
 
-module.exports = { getRole, getTimeout }
+module.exports = { def: auth, services: { getRole, getTimeout } }
