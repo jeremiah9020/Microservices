@@ -2,7 +2,7 @@ const express = require('express');
 const sequelize = require('../../database/db');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { authenticate, serviceRequest, grpc: {auth: {getRole}, user: {delete: deleteUser}} } = require('shared');
+const { authenticate, grpc: {auth: {getRole}, user: {delete: deleteUser}} } = require('shared');
 
 /**
  * Used to delete a user's authentication data.

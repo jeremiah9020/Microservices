@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sequelize = require('../../database/db');
 const { v4: uuidv4 } = require('uuid');
-const { authenticate, serviceRequest, grpc: { user: { updateCookbooks }} } = require('shared');
+const { authenticate, grpc: { user: { updateCookbooks }} } = require('shared');
 
 /**
  * Creates a copy of a cookbook with a new owner.
