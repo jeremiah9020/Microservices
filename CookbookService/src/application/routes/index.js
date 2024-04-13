@@ -44,8 +44,6 @@ router.post('/', authenticate.strictly, async function(req, res, next) {
   } catch (err) {
     return res.status(500).json({error: 'could not create the cookbook'}); 
   }
-
- 
 });
 
 /**

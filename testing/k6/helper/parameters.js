@@ -4,7 +4,7 @@ export default {
         contacts: {
             executor: 'per-vu-iterations',
             vus: 10,
-            iterations: 20,
+            iterations: 40,
             maxDuration: '120s',
         }
     }
