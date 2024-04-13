@@ -46,6 +46,9 @@ k6 run --summary-export=summary/GET.feed.query.json GET.feed.query.js  > /dev/nu
 # Delete
 k6 run --summary-export=summary/POST.auth.delete.json POST.auth.delete.js  > /dev/null
 
+# Running a bulk test!
+k6 run --summary-export=summary/bulk.json bulk.js  > /dev/null
+
 # Output results
 
 node ./helper/output.js
