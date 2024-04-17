@@ -67,10 +67,16 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
       const data = JSON.parse(recipe.data)
       const average = recipe.ratings.length ? recipe.ratings.reduce((a, b) => a.rating + b.rating) / recipe.ratings.length : 0;
 
+      let user_rating = null;
+      if (req.username) {
+        console.log(recipe.ratings);
+      }
+
       const recipeData = {
         owner: recipeMetadata.owner,
         visibility: recipe.visibility,
         rating: average,
+        user_rating,
         data
       }
     

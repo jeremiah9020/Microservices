@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const cors = require('cors') 
 const app = express();
 
 const deleteRouter = require('./routes/delete');
@@ -11,6 +12,10 @@ const registerRouter = require('./routes/register');
 const roleRouter = require('./routes/role');
 const timeoutRouter = require('./routes/timeout');
 
+app.use(cors( {
+  origin: true,
+  credentials: true
+}));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
