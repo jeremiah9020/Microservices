@@ -9,6 +9,7 @@ module.exports = async (db) => {
         await db.models.user.sync({ force: !process.env.ONLINE })
         await db.models.recipe.sync({ force: !process.env.ONLINE })
         await db.models.cookbook.sync({ force: !process.env.ONLINE })
+        await db.models.follow.sync({ force: !process.env.ONLINE })
         console.log('Models successfully synced');
     } catch (error) {
         console.error('Unable to sync the models:');

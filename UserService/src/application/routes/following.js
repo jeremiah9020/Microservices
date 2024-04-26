@@ -9,18 +9,19 @@ async function updateFollowingList(user, add, remove) {
   if (remove) {
     for (const toRemove of remove) {
       try {
-        const userToRemove = await db.models.user.findByPk(toRemove);
-        await user.removeFollowing(userToRemove);
-      } catch (err) {}
+        await db.models.follow.destroy({where: { userId: toRemove, followerId: user.username }});
+      } catch (err) {
+        console.log(err)
+      }
     }
   }
 
   if (add) {
     for (const toAdd of add) {
       try {
-        const userToAdd = await db.models.user.findByPk(toAdd);
-        await user.addFollowing(userToAdd);
-      } catch (err) {}
+        await db.models.follow.create({ userId: toAdd, followerId: user.username });
+      } catch (err) {
+      }
     }
   }
 }

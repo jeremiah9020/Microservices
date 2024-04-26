@@ -43,33 +43,25 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
   }
 
   const db = await sequelize;
+  
 
   try {
     const user = await db.models.user.findByPk(username || req.username, {
       include: [
-        { model: db.models.user, as: 'following' },
         { model: db.models.recipe, as: 'recipes'},
         { model: db.models.cookbook, as: 'cookbooks'}
       ]
     });
-
-    const followers = await db.models.user.count({
-      include: [
-        {
-          model: db.models.user, 
-          as: 'following', 
-          where: { username: username || req.username }
-        }
-      ]
-    });
+    
+    const followers = (await user.getFollowers()).length;
+    const following = (await user.getFollowing()).map(x => x.username);
 
     const recipes = user.recipes.map(x => x.rid);
     const cookbooks = user.cookbooks.map(x => x.cid);
-    const following = user.following.map(x => x.username);
     const data = JSON.parse(user.data);
 
     // successfully retrieved the user data
-    return res.status(200).json({ user: {recipes, cookbooks, followers, following, data}});
+    return res.status(200).json({ user: {username: username || req.username, recipes, cookbooks, followers, following, data}});
   } catch (err) {
     // could not find the user
     return res.status(404).json({error: 'could not find the user'});
