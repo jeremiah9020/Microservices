@@ -64,13 +64,12 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     }
 
     if (serverRequest || recipeIsVisible || userIsOwner || await userHasRole()) {
-      const data = JSON.parse(recipe.data)
-      const average = recipe.ratings.length ? recipe.ratings.reduce((a, b) => a.rating + b.rating) / recipe.ratings.length : 0;
+      console.log(recipe.ratings.reduce((a, b) => a.rating || a + b.rating || b, 0))
 
-      let user_rating = null;
-      if (req.username) {
-        console.log(recipe.ratings);
-      }
+      const data = JSON.parse(recipe.data)
+      const average = recipe.ratings.length ? recipe.ratings.reduce((a, b) => a.rating || a + b.rating || b, 0) / recipe.ratings.length : 0;
+
+      let user_rating = recipe.ratings.find(x => x.owner == req.username)?.rating;
 
       const recipeData = {
         owner: recipeMetadata.owner,

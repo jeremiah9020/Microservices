@@ -9,6 +9,7 @@ const indexRouter = require('./routes/index');
 const metadataRouter = require('./routes/metadata');
 const referenceRouter = require('./routes/reference');
 const feedRouter = require('./routes/feed');
+const ratingRouter = require('./routes/rating');
 
 app.use(cors( {
   origin: true,
@@ -23,6 +24,7 @@ app.use('/', indexRouter);
 app.use('/metadata/', metadataRouter);
 app.use('/reference/', referenceRouter);
 app.use('/feed/', feedRouter);
+app.use('/rating/', ratingRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
