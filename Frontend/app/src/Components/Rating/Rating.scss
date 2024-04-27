@@ -1,0 +1,40 @@
+.rating-container {
+    position:relative;
+
+    width: 100%;
+    height: 100%;
+
+    .rater {
+        position: absolute;
+        width: calc(100% - 2px);
+        height: 100%;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+        button {
+            z-index: 200;
+            width: 20%;
+            height: 100%;
+            border: none;
+            outline: none;
+            background-color: transparent;
+        }
+    }
+
+    .rating-img-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .rating-star {
+        position:absolute;
+        width: auto;
+        height: 100%;
+        object-fit: contain;
+    }
+}

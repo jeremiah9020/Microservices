@@ -1,0 +1,89 @@
+@import '../../Styling/mixins.scss';
+@import '../../Styling/colors.scss';
+
+.register-whole-page {
+    background-color: $bg-light;
+    height: 100%;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .register-centered-container {
+        width : 40vh;
+        padding: 2vh;
+        background-color: $bg-lightest;
+        border-radius: 5px;
+
+        .register-title-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
+            .register-title {
+                font-weight: 700;
+                font-size: 3vh;
+            }
+
+            .register-error {
+                font-size: 1.5vh;
+                color: $error;
+
+                transform: translateY(0px);
+                opacity: 1;
+                transition: all 250ms;
+
+
+                &.hidden {
+                    transform: translateY(3px);
+
+                    opacity: 0;
+                }
+            }
+        }
+
+        .register-entry {
+            font-weight: 300;
+            font-size: 2vh;
+            padding-top: 2vh;
+            input {
+                @include font;    
+
+                
+
+                font-size: 1.5vh;
+                padding: 0vh 1vh;
+                height: 3vh;
+                width: calc(100% - 2vh - 4px);
+
+                &:focus {
+                    outline: none;
+                    border: 2px solid $fg-dark;
+                    border-radius: 3px;
+                }
+            }
+        }
+
+        .register-button-container {
+            padding-top: 3vh;
+
+            .register-button {
+                @include primary-button;           
+               
+                font-size: 2vh;
+                font-weight: 800;
+                width: 100%;
+                height: 4vh;
+            }
+        }
+
+        .register-goto-login {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top:3vh;
+        }
+    }
+}

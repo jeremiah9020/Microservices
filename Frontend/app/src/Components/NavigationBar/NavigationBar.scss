@@ -1,0 +1,72 @@
+@import '../../Styling/mixins.scss';
+
+.navigation-bar-container {
+    background-color: $fg-medium;
+    padding-left: 15px;
+    padding-right: 5px;
+    height: 40px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+
+    .navigation-buttons-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+        .navigation-button {
+            @include primary-button;
+            width: 100px;
+            height: 40px;
+            border-radius: 0px;
+            color: $fg-darkest;
+            font-weight: 800;
+
+            background-color: $fg-medium;
+
+        }
+    }
+
+    .navigation-auth-container {
+        .navigation-auth-logged-in-container {
+            max-width: 200px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            background-color: $fg-dark;
+            border-radius: 5px;
+            padding: 4px 5px 4px 10px;
+            
+            .navigation-auth-username {
+                text-decoration: none;
+                font-size: small;
+                font-weight: 800;
+                color: white;
+                padding-right: 10px;
+
+                overflow: hidden;
+                text-overflow: ellipsis;
+                text-wrap: nowrap;
+            }
+            
+            .navigation-auth-logout-button {
+                @include primary-button;
+                height: 22px;
+            }
+        }
+
+        .navigation-auth-login-container {
+            .navigation-auth-login {
+                @include primary-button;
+                font-weight: 600;
+                padding: 4px 10px 4px 10px;
+                text-decoration: none;
+            }
+        }
+    }
+}

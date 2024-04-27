@@ -1,0 +1,135 @@
+@import '../../Styling/colors.scss';
+@import '../../Styling/mixins.scss';
+
+
+.chef-container {
+    width: 100%;
+    height: calc(100% - 40px);
+    background-color: $bg-light;
+    z-index: 0;
+
+    .chef-banner-container {
+        position: relative;
+        width: calc(100% - 40px);
+        height: 100px;
+        background-color: white;
+        padding-left: 20px;
+        padding-right: 20px;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+        box-shadow: 0px 3px 2px 0px rgba(0, 0, 0, 0.3);
+        z-index: 2;
+
+        .chef-card-container {
+
+            padding: 10px;
+            width: 180px;
+            height: 42px;
+            background-color: $fg-light;
+            border-radius: 5px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: start;
+
+            .chef-card-title {
+                font-weight: 700;
+                font-size: small;
+            }
+            
+            .chef-card-name {
+                font-weight: 800;
+                font-size: large;
+                color: $fg-darkest;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                text-wrap: nowrap;
+                width: 100%;
+            }
+        }
+
+        .chef-follow-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 10px;
+            width: 120px;
+            height: 42px;
+            background-color: $fg-light;
+            border-radius: 5px;
+
+            .chef-followers {
+                font-weight: 700;
+            }
+
+            .chef-follow {
+                @include primary-button;
+                width: 100%;
+            }
+        }
+
+        .chef-description-container {
+            font-size: 15px;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            width: calc(100% - 380px);
+            text-overflow: ellipsis;
+            hyphens: auto;
+            -webkit-line-clamp: 3;
+            height: 57px;
+            padding-bottom:5px;
+
+            .chef-description-input-container {
+                width: 100%;
+                height: 100%;
+                position: relative;
+
+                .chef-description-input {
+                    position:absolute;
+                    font-size: 14px;
+    
+                    outline: none;
+                    border: 1px solid $bg-light;
+                    border-radius: 5px;
+                    width: 100%;
+                    height: 100%;
+                    resize: none;
+    
+                    font-family: "Nunito", sans-serif;
+                    font-weight: 400;
+                    font-style: normal;
+                    font-optical-sizing: auto;
+                }
+
+                .chef-description-save-button {
+                    @include primary-button;
+                    position:absolute;
+                    bottom: 0;
+                    right: 10px;
+                }
+            }
+            
+        }
+    }
+
+    .chef-recipe-container {
+        z-index: 1;
+        width: 100%;
+        height: calc(100% - 100px);
+        overflow-y: auto;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: start;
+    }
+}
+
+
