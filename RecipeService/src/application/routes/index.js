@@ -64,8 +64,6 @@ router.get('/', authenticate.loosely, async function(req, res, next) {
     }
 
     if (serverRequest || recipeIsVisible || userIsOwner || await userHasRole()) {
-      console.log(recipe.ratings.reduce((a, b) => a.rating || a + b.rating || b, 0))
-
       const data = JSON.parse(recipe.data)
       const average = recipe.ratings.length ? recipe.ratings.reduce((a, b) => a.rating || a + b.rating || b, 0) / recipe.ratings.length : 0;
 
