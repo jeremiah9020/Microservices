@@ -38,7 +38,7 @@ module.exports = (sequelize) => {
     visibility: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'public'
+      defaultValue: 'private'
     }
   });
 };
