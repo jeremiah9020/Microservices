@@ -33,7 +33,7 @@ router.get('/', authenticate.server, async function(req, res, next) {
     });
   }
 
-  const data = users.map(x => x.id);
+  const data = users.map(x => x.username);
 
   // user's authentication data successfully delete
   return res.status(200).json({users: data});
