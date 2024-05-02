@@ -13,9 +13,17 @@ async function isLoggedIn(setAuthInfo) {
 
 
         const { user } = await response.json();
-        const { username, following } = user;
+        const { username, following, cookbooks } = user;
 
-        setAuthInfo({loggedIn: true, username, following, reload: () => {isLoggedIn(setAuthInfo)}})
+        const cookbookPromises = cookbooks.map(async id => {
+            const response = await fetch(`http://localhost:3003?id=${id}`,{credentials: 'include'});
+            const { cookbook } = await response.json();
+            cookbook.id = id;
+            return cookbook
+        })
+
+        const cookbookValues = await Promise.all(cookbookPromises); 
+        setAuthInfo({loggedIn: true, cookbooks: cookbookValues, username, following, reload: () => {isLoggedIn(setAuthInfo)}})
 ;
     } catch (err) {
         setAuthInfo({loggedIn: false})
@@ -46,11 +54,13 @@ export default function NavBar({ setAuthInfo }) {
         <>
             <div className='navigation-bar-container'>
                 <div className='navigation-logo-container'>
-                    <Link className='navigation-button' to={'/'}>LOGO</Link>
+                    <Link className='navigation-home' to={'/'}>LOGO</Link>
                 </div>
 
                 <div className='navigation-buttons-container'>
                     <Link className='navigation-button' to={'create'}>Create</Link>
+                    <Link className='navigation-button' to={'search'}>Search</Link>
+                    <Link className='navigation-button' to={'cookbooks'}>Cookbooks</Link>
                 </div>
                 
                 <div className='navigation-auth-container'>

@@ -25,11 +25,20 @@
             border-radius: 0px;
             color: $fg-darkest;
             font-weight: 800;
-
+    
             background-color: $fg-medium;
-
+    
         }
     }
+
+    .navigation-home {
+        color: $fg-darkest;
+        @include font;
+        font-weight: 800;
+        text-decoration: none;
+
+    }
+    
 
     .navigation-auth-container {
         .navigation-auth-logged-in-container {

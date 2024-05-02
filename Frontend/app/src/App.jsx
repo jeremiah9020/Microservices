@@ -13,6 +13,8 @@ import Register from "./Pages/Register/Register";
 import Home from "./Pages/Home/Home";
 import Chef from "./Pages/Chef/Chef";
 import Create from "./Pages/Create/Create";
+import Search from "./Pages/Search/Search";
+import Cookbooks from "./Pages/Cookbooks/Cookbooks";
 
 export default function App() {
   const [authContext, setAuthContext] = useState({});
@@ -29,6 +31,8 @@ export default function App() {
               <Route index element={<Home />} />
               <Route path="/chef" element={<Chef />} />
               <Route path="/create" element={<Create />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/cookbooks" element={<Cookbooks />} />
 
               {/* <Route index element={<Home />} />
               <Route path="blogs" element={<Blogs />} />

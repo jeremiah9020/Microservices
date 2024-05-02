@@ -1,0 +1,55 @@
+@import '../../Styling/colors.scss';
+@import '../../Styling/mixins.scss';
+
+.cookbooks-page {
+    width: 100%;
+    height: 100%;
+    background-color: $bg-light;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+
+    .cookbooks-sidebar {
+        background-color: $fg-dark;
+        width: 150px;
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        .cookbook-titles {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+
+            .cookbook-title {
+                padding: 10px;
+
+
+                color: white;
+                font-size: small;
+                font-weight: 800;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                text-wrap: nowrap;
+                width: calc(100% - 20px);
+
+                &:hover {
+                    cursor: pointer;
+                }
+
+                &[data-selected=true] {
+                    background-color: $fg-darkest;
+                }
+            }
+        }
+        
+       
+    }
+
+    .cookbooks-container {
+        width: calc(100% - 150px);
+    }
+}
