@@ -1,0 +1,65 @@
+@import '../../Styling/colors.scss';
+@import '../../Styling/mixins.scss';
+
+.user-container {
+    margin-top: 10px;
+    border-radius: 5px;
+    width: 400px;
+    height: 50px;
+    background-color: white;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .name-container {
+        margin: 10px;
+        width: 160px;
+        height: 30px;
+        background-color: $fg-light;
+        border-radius: 5px;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+
+        .title {
+            padding-left: 10px;
+            padding-right: 5px;
+            font-weight: 700;
+            font-size: small;
+        }
+
+        .name {
+            text-decoration: none;
+            font-weight: 800;
+            font-size: small;
+            color: $fg-darkest;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            text-wrap: nowrap;
+            width: 75%;
+        }
+    }
+
+    .follow-container {
+        padding-right: 10px;
+
+        .chef-follow-container {
+            max-width: 210px;
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            align-items: center;
+            
+            .chef-follow {
+                @include primary-button;
+
+                height: 30px;
+                margin-right: 10px;
+            }
+        }
+    }
+}

@@ -3,6 +3,7 @@ import './Chef.scss'
 import Recipe from '../../Components/Recipe/Recipe';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../../Contexts/AuthContext';
+import Follow from '../../Components/Follow/Follow';
 
 export default function Chef() {
     let [searchParams, setSearchParams] = useSearchParams();
@@ -54,57 +55,6 @@ export default function Chef() {
         setShowSaveButton(input != description);
     }, [input, description])
 
-    const isLoggedInUserFollowing = () => {
-        return auth.following.includes(username);
-    }
-
-    const follow = async () => {
-        const updateResponse = await fetch(`http://localhost:3006/following`,{
-            method:'PATCH',
-            credentials: 'include',
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: JSON.stringify({add: [username]}) 
-        });
-
-        if (updateResponse.status == 200) {
-            getUserData();
-            auth.reload();
-        } 
-    }
-
-
-    const unfollow = async () => {
-        const updateResponse = await fetch(`http://localhost:3006/following`,{
-            method:'PATCH',
-            credentials: 'include',
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: JSON.stringify({remove: [username]}) 
-        });
-
-        if (updateResponse.status == 200) {
-            getUserData();
-            auth.reload();
-        } 
-    }
-
-    const formatFollowers = () => {
-        let numFollowers = followers;
-        let letter = ''
-
-        if (followers > 1000000) {
-            numFollowers /= 1000000
-            letter = 'M'
-        } else if (followers > 1000) {
-            numFollowers /= 1000
-            letter = 'K'
-        }
-
-        return `${numFollowers}${letter} `;
-    }
 
     const saveDescription = async () => {
         const updateResponse = await fetch(`http://localhost:3006/`,{
@@ -149,14 +99,7 @@ export default function Chef() {
                 </div>
 
                 
-                <div className='chef-follow-container'>
-                    <span className='chef-followers'>  { formatFollowers() } Followers</span>
-                  
-                    { auth.loggedIn && auth.username != username && (isLoggedInUserFollowing() 
-                    ? <button className='chef-follow' onClick={unfollow}>Unfollow</button>
-                    : <button className='chef-follow' onClick={follow}>Follow</button>
-                    )}
-                </div>
+                <Follow username={username} followers={followers} update={getUserData} />
             </div>
 
 
