@@ -85,7 +85,7 @@ export default function Recipe({id, version, showUsername = true, showSave = tru
         const section = body.sections.filter(x => x.title == selectedSection)[0]
         section.recipes.push({id, version})
 
-        const response = await fetch(`http://localhost:3003/`,{
+        await fetch(`http://localhost:3003/`,{
             method:'PATCH',
             headers: {
                 'Content-type': 'application/json'
@@ -93,6 +93,8 @@ export default function Recipe({id, version, showUsername = true, showSave = tru
             body: JSON.stringify(body),
             credentials: 'include'
         });
+
+        modal.current.close();
     }
 
     return (

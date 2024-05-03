@@ -3,7 +3,7 @@
 
 .cookbooks-page {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 40px);
     background-color: $bg-light;
 
     display: flex;
@@ -51,5 +51,6 @@
 
     .cookbooks-container {
         width: calc(100% - 150px);
+        overflow: auto;
     }
 }
